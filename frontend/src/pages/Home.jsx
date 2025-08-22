@@ -1,4 +1,5 @@
 import mesochair from '../assets/home-img.png';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Home = () => {
     
@@ -8,8 +9,13 @@ const Home = () => {
                 <p className="text-5xl relative p-5 rounded-lg mb-[2rem]">
                     A tool to keep count of your weekly mesos.
                 </p>
-                <button type="button" className="text-2xl p-3 rounded-lg bg-purple-700 hover:bg-purple-800 text-white">
-                    Login Now
+                <button type="button">
+                    <Link 
+                        to="/login" 
+                        className="text-2xl p-3 rounded-lg bg-purple-700 hover:bg-purple-800 text-white"
+                    >
+                        Login Now
+                    </Link>
                 </button>
                 
             </div>

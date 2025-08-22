@@ -1,9 +1,10 @@
+import React, { useContext } from "react";
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from "../AuthContext.jsx";
 import crystal from '../assets/boss crystal.png';
 
 const Navbar = () => {
-
-    const user = 1;
+    const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
     const handleLogout = () => {
         logout();

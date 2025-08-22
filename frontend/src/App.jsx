@@ -4,18 +4,20 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Tracker from './pages/Tracker';
 import Signup from './pages/Signup';
+import { AuthProvider } from "./AuthContext"; 
 
-//<Route path="/signup" element = {<Signup/>}/> - add backin after making signup page
 const App = () => {
   return (
     <div>
       <Navbar/>
+      <AuthProvider>
       <Routes>
         <Route path="/" element = {<Home/>}/>
         <Route path="/signup" element = {<Signup/>}/>
         <Route path="/login" element = {<Login/>}/>
         <Route path="/tracker" element = {<Tracker/>}/>
       </Routes>
+      </AuthProvider>
     </div>
       
   );

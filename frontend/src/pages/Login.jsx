@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { loginUser } from "../api/userService";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -14,9 +15,9 @@ const Login = () => {
 
         try {
             const data = await loginUser({ email, password });
-            localStorage.setItem("token", data.token);
+            localStorage.setItem("token", data.user);
             setUser(data.user); 
-            navigate("/dashboard");
+            navigate("/tracker");
         } catch (err) {
             setError(err.message || "Login failed. Please try again.");
 
@@ -59,7 +60,7 @@ const Login = () => {
                     </button>
                 </form>
                 <p className="mt-4 text-center text-gray-600">
-                    Don't have an account? <a href="/register" className="text-orange-400">Register</a>
+                    Don't have an account? <a href="/signup" className="text-orange-400">Register</a>
                 </p>
                 <p className="mt-2 text-sm text-center text-gray-600">
                         Forgot your password?{" "}
