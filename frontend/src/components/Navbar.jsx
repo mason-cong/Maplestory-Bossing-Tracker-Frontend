@@ -11,6 +11,8 @@ const Navbar = () => {
         navigate("/login");
     };
 
+    //console.log(user);
+
     return (
        <nav className="bg-orange-400 text-white p-1 shadow-md ">
             <div className="flex items-center gap-2 w-full justify-center">

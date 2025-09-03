@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+@layer base {
+  .tracker-class {
+    @apply bg-orange-100; /* Apply a light blue background */
+    @apply min-h-[100dvh];
+  }
+}

@@ -2,9 +2,11 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { loginUser } from "../api/userService";
+import { AuthContext } from "../AuthContext";
 
 const Login = () => {
-    const [email, setEmail] = useState("");
+    const { user, setUser } = useContext(AuthContext);
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();
@@ -14,9 +16,11 @@ const Login = () => {
         setError("");
 
         try {
-            const data = await loginUser({ email, password });
-            localStorage.setItem("token", data.user);
-            setUser(data.user); 
+            const data = await loginUser({ username, password });
+            localStorage.setItem("userData", JSON.stringify(data));
+            setUser(data.username); 
+            //console.log(data.username);
+            console.log(user);
             navigate("/tracker");
         } catch (err) {
             setError(err.message || "Login failed. Please try again.");
@@ -31,13 +35,13 @@ const Login = () => {
                 {error && <p className="text-red-600 text-center">{error}</p>}
                 <form onSubmit={handleSubmit} className="mt-4">
                     <div className="mb-4">
-                        <label className="block text-gray-700">Email</label>
+                        <label className="block text-gray-700">Username</label>
                         <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            type="username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                             className="w-full px-4 py-2 mt-2 border rounded-md focus:ring-2 focus:ring-orange-400 outline-none"
-                            placeholder="Enter your email"
+                            placeholder="Enter your username"
                             required
                         />
                     </div>

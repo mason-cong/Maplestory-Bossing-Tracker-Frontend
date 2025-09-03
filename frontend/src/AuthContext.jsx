@@ -8,12 +8,19 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchUser = async () => {
-            const token = localStorage.getItem("token");
-            if (!token) {
+            const storedDataString = localStorage.getItem("userData");
+            if (!storedDataString) {
                 setUser(null); 
                 setLoading(false);
                 return;
             }
+            try {
+                const retrievedJsonObject = JSON.parse(storedDataString);
+                setUser(retrievedJsonObject.username);
+            } catch (err) {
+                console.error("Error fetching user:", err);
+                setUser(null); 
+            } 
         };
         fetchUser();
     }, []);
@@ -21,7 +28,7 @@ export const AuthProvider = ({ children }) => {
     
     const logout = () => {
         console.log("🔴 Logging out from AuthContext...");
-        localStorage.removeItem("token");
+        localStorage.removeItem("userData");
         setUser(null);
     };
 
