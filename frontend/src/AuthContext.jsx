@@ -4,6 +4,7 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [userId, setUserId] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -17,6 +18,7 @@ export const AuthProvider = ({ children }) => {
             try {
                 const retrievedJsonObject = JSON.parse(storedDataString);
                 setUser(retrievedJsonObject.username);
+                setUserId(retrievedJsonObject.id);
             } catch (err) {
                 console.error("Error fetching user:", err);
                 setUser(null); 
@@ -33,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, setUser, loading, logout }}>
+        <AuthContext.Provider value={{ user, setUser, userId, setUserId, loading, logout }}>
             {children}
         </AuthContext.Provider>
     );
