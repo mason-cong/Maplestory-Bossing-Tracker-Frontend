@@ -9,6 +9,8 @@ import mesoChart from '../components/mesoChart';
 const Tracker = () => {
     const {user, userId} = useContext(AuthContext);
     const [displayedMeso, setDisplayedMeso] = useState([]);
+    const [displayedCharacter, setDisplayedCharacter] = useState([]);
+
     //handles bg change
     useEffect(() => {
         // Add a class to the body when the component mounts
@@ -64,7 +66,26 @@ const Tracker = () => {
                                 <p>0</p>
                             </div>
                         </div>   
+
+                        <ul>
+                        {userCharacters.map((character) => 
+                            <li key = {character.id}>
+                                {character.name}
+                                <button onClick={() => setDisplayedCharacter(character)}>Selected Character</button>
+                            </li>
+
+                        )}
+
+                        {displayedCharacter && (
+                            <div>
+                                Details here
+                            </div>
+                        )}
+                        </ul>
                     </div>
+
+                   
+
                 </div>
             </div>
             

@@ -4,11 +4,8 @@ const API_URL = "http://localhost:8080/weekly-characters";
 const API2_URL = "http://localhost:8080/login";
 
 const getAuthHeaders = () => {
-    const storedDataString = localStorage.getItem("userData");
-    const retrievedJsonObject = JSON.parse(storedDataString);
-    const combinedString = retrievedJsonObject.username + ";" + retrievedJsonObject.password;
-    const encodedString = btoa(combinedString);
-    return { Authorization: `Basic ${encodedString}` };
+    const token = localStorage.getItem("token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 export const getUserCharacters = async (userID) => {

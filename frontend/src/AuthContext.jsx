@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
+import { getUserId } from "./api/userService";
 
 export const AuthContext = createContext();
 
@@ -9,16 +10,15 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchUser = async () => {
-            const storedDataString = localStorage.getItem("userData");
-            if (!storedDataString) {
+            const token = localStorage.getItem("token");
+            if (!token) {
                 setUser(null); 
                 setLoading(false);
                 return;
             }
             try {
-                const retrievedJsonObject = JSON.parse(storedDataString);
-                setUser(retrievedJsonObject.username);
-                setUserId(retrievedJsonObject.id);
+                const data = await getUserId(token);
+                    setUserId(data);
             } catch (err) {
                 console.error("Error fetching user:", err);
                 setUser(null); 
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
     
     const logout = () => {
         console.log("🔴 Logging out from AuthContext...");
-        localStorage.removeItem("userData");
+        localStorage.removeItem("token");
         setUser(null);
     };
 

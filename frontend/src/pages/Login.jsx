@@ -17,10 +17,8 @@ const Login = () => {
 
         try {
             const data = await loginUser({ username, password });
-            localStorage.setItem("userData", JSON.stringify(data));
+            localStorage.setItem("token", data.token);
             setUser(data.username); 
-            //console.log(data.username);
-            console.log(user);
             navigate("/tracker");
         } catch (err) {
             setError(err.message || "Login failed. Please try again.");

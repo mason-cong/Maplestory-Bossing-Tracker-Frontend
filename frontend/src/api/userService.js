@@ -2,13 +2,12 @@ import axios from "axios";
 
 const API_URL = "http://localhost:8080/signup";
 const API2_URL = "http://localhost:8080/login";
+const API3_URL = "http://localhost:8080/userData";
+
 
 const getAuthHeaders = () => {
-    const storedDataString = localStorage.getItem("userData");
-    const retrievedJsonObject = JSON.parse(storedDataString);
-    const combinedString = retrievedJsonObject.username + ";" + retrievedJsonObject.password;
-    const encodedString = btoa(combinedString);
-    return { Authorization: `Basic ${encodedString}` };
+    const token = localStorage.getItem("token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 export const registerUser = async (userData) => {
@@ -28,3 +27,12 @@ export const loginUser = async (userData) => {
         throw error.response?.data?.msg || "Login failed";
     }
 };
+
+export const getUserId = async (userData) => {
+    try {
+        const response = await axios.post(`${API3_URL}`, userData)
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.msg || "Login failed";
+    }
+}
