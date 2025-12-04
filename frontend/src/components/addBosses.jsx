@@ -138,25 +138,25 @@ const addBosses = ({ bosses }) => {
       <div className="w-[20rem] ml-[2rem] p-3">
         <div className='grid grid-cols-7 gap-4'>
             <div className='text-center flex items-center w-full'>
-                <img className="w-10 h-10 mx-auto rounded object-contain" alt="Zakum" src={""}/>
+                <img className="w-10 h-10 mx-auto rounded object-contain" alt="Zakum" src={null}/>
             </div>
             <p>Bosses:</p>
             <select className="" name="bosses" value={selectedBoss} onChange={handleBossChange}>
               <option>Select Boss</option>
-              {Object.keys(availableBosses).map((bossNames) => (
-                <option key={bossNames.id}>{bossNames}</option>
+              {Object.keys(availableBosses).map((bossNames, index) => (
+                <option key={index}>{bossNames}</option>
               ))}
 
             </select>
             <p>Difficulty:</p>
             <select className="" name="difficulty" value={selectedDifficulty} onChange={handleDifficultyChange}>
               <option>Select Difficulty</option>
-              {Object.keys(currentDifficulty).map((difficulties) => (
-                <option key={difficulties.id}>{difficulties}</option>
+              {Object.keys(currentDifficulty).map((difficulties, index) => (
+                <option key={index}>{difficulties}</option>
               ))}
             </select>
             <p>Party Size:</p>
-            <select className="" name="partySize" value={selectedPartySize}>
+            <select className="" name="partySize" value={selectedPartySize} >
               <option>Select Party Size</option>
               {currentPartySize.map((size, index) => (
                 <option key={index}>{size}</option>

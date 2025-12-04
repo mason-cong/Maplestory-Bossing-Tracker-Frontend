@@ -18,6 +18,7 @@ const Login = () => {
         try {
             const data = await loginUser({ username, password });
             localStorage.setItem("token", data.token);
+            localStorage.setItem("username", data.username);
             setUser(data.username); 
             navigate("/tracker");
         } catch (err) {

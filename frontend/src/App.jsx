@@ -8,9 +8,8 @@ import { AuthProvider } from "./AuthContext";
 
 const App = () => {
   return (
-      <div>
-        <Navbar/> 
         <AuthProvider>
+        <Navbar/> 
         <Routes>
           <Route path="/" element = {<Home/>}/>
           <Route path="/signup" element = {<Signup/>}/>
@@ -18,7 +17,6 @@ const App = () => {
           <Route path="/tracker" element = {<Tracker/>}/>
         </Routes>
         </AuthProvider>
-      </div>
   );
 };
 

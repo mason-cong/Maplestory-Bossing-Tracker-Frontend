@@ -3,13 +3,13 @@ import React, { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../AuthContext";
 import '../index.css';
 import InputMenu from '../components/addBosses';
-import getUserCharacters from '../api/trackerService';
-import getUserMeso from '../api/trackerService';
-import mesoChart from '../components/mesoChart';
+import { getUserCharacters, getUserMeso } from '../api/trackerService';
+import MesoChart from '../components/mesoChart';
 const Tracker = () => {
-    const {user, userId} = useContext(AuthContext);
+    const {user, userId, loading} = useContext(AuthContext);
     const [displayedMeso, setDisplayedMeso] = useState([]);
     const [displayedCharacter, setDisplayedCharacter] = useState([]);
+    const [userCharacters, setUserCharacters] = useState([]);
 
     //handles bg change
     useEffect(() => {
@@ -28,13 +28,36 @@ const Tracker = () => {
     }, []);
 
     //pie chart updates
+    //we need to set another useeffect to get the usercharacters and wait to load site
     useEffect(() => {
-        const userCharacters = async () => await getUserCharacters(userId);
-        userCharacters?.forEach((charId) => {
-            const characterMeso = async () => await getUserMeso(charId);
-            setDisplayedMeso((displayedMeso) => [...displayedMeso, characterMeso]);
-        });
-    }, []);
+        if (!userId) return;
+
+            const loadData = async() => {
+                try {
+                    // Step 2: Get characters with that userId
+                    const charactersResponse = await getUserCharacters(userId);
+                    setUserCharacters(charactersResponse);
+
+                    charactersResponse?.forEach((character) => {
+                        try {
+                            const characterMeso = async () => await getUserMeso(character.id);
+                            setDisplayedMeso((displayedMeso) => [...displayedMeso, characterMeso]);
+                        } catch (error) {
+                            console.error(error);
+                        }
+                    });
+                } catch (err) {
+                    setError(err.message);
+                } 
+            };
+            loadData();
+
+    }, [loading, userId]);
+
+
+    if (loading) {
+        return <div>Loading authentication</div>;
+    }
 
     return (
         <div className="flex-grow flex flex-wrap gap-3 p-4 mt-10 justify-center w-full">
@@ -68,13 +91,14 @@ const Tracker = () => {
                         </div>   
 
                         <ul>
-                        {userCharacters.map((character) => 
+                        {userCharacters?.map((character) => {
                             <li key = {character.id}>
                                 {character.name}
                                 <button onClick={() => setDisplayedCharacter(character)}>Selected Character</button>
                             </li>
-
-                        )}
+                        
+                        })}
+                        {console.log(userCharacters)}
 
                         {displayedCharacter && (
                             <div>
@@ -98,9 +122,6 @@ const Tracker = () => {
                                 </div>
                                 <div className="p-3 flex flex-col md:flex-row items-center w-full">
                                     <div className="w-full lg:w-1/2">
-                                        <div>
-                                            <mesoChart chartData = {displayedMeso}> </mesoChart>
-                                        </div>
                                     </div>
                                 <div className="flex flex-col w-full gap-3">
                                     <div className="flex flex-row items-center justify-between w-full">

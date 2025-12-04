@@ -20,7 +20,7 @@ const Home = () => {
                 
             </div>
             <div className="flex flex-end lg:flex-col">
-                <img class="w-[50rem] object-fill" src={mesochair}/>
+                <img className="w-[50rem] object-fill" src={mesochair}/>
             </div>
             
         </div>
