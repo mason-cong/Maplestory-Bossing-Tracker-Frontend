@@ -19,9 +19,9 @@ export const getUserCharacters = async (userID) => {
     }
 };
 
-export const createNewUserCharacters = async (userID) => {
+export const createNewUserCharacters = async (userID, charData) => {
     try {
-        const response = await axios.post(`${API_URL}/${userID}`, {
+        const response = await axios.post(`${API_URL}/${userID}`, charData, {
             headers: getAuthHeaders(),
         });
         return response.data;

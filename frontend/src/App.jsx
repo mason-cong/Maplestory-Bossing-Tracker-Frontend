@@ -9,13 +9,13 @@ import { AuthProvider } from "./AuthContext";
 const App = () => {
   return (
         <AuthProvider>
-        <Navbar/> 
-        <Routes>
-          <Route path="/" element = {<Home/>}/>
-          <Route path="/signup" element = {<Signup/>}/>
-          <Route path="/login" element = {<Login/>}/>
-          <Route path="/tracker" element = {<Tracker/>}/>
-        </Routes>
+          <Navbar/> 
+          <Routes>
+            <Route path="/" element = {<Home/>}/>
+            <Route path="/signup" element = {<Signup/>}/>
+            <Route path="/login" element = {<Login/>}/>
+            <Route path="/tracker" element = {<Tracker/>}/>
+          </Routes>
         </AuthProvider>
   );
 };

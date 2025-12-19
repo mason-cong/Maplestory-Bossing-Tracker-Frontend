@@ -5,7 +5,7 @@ import { loginUser } from "../api/userService";
 import { AuthContext } from "../AuthContext";
 
 const Login = () => {
-    const { user, setUser } = useContext(AuthContext);
+    const { login } = useContext(AuthContext);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -15,15 +15,13 @@ const Login = () => {
         e.preventDefault();
         setError("");
 
-        try {
-            const data = await loginUser({ username, password });
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("username", data.username);
-            setUser(data.username); 
-            navigate("/tracker");
-        } catch (err) {
-            setError(err.message || "Login failed. Please try again.");
+        const result = await login(username, password);
 
+        if (result.success) {
+        // Navigate only after auth context is fully loaded
+            navigate('/tracker');
+        } else {
+            setError(result.error || 'Login failed');
         }
     };
 
