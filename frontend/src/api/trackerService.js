@@ -30,6 +30,18 @@ export const createNewUserCharacters = async (userID, charData) => {
     }
 };
 
+export const updateUserCharacter = async (userID, charID, charData) => {
+    try {
+        const response = await axios.put(`${API_URL}/${userID}/${charID}`, charData, {
+            headers: getAuthHeaders(),
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Update character error:', error.response?.status, error.response?.data);
+        throw error.response?.data?.msg || "Failed to update character";
+    }
+};
+
 export const getBossesFromCharacter = async (userID, charID) => {
     try {
         const response = await axios.get(`${API_URL}/${userID}/${charID}/bosses`, {

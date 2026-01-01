@@ -90,12 +90,11 @@ const Tracker = () => {
             <div className="flex flex-col gap-2 lg:w-[40rem]">
                 <div className="flex flex-row p-5 border rounded-lg border-orange-100 bg-orange-300 w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto">
                     <CharacterManager 
+                        userId = {userId}
                         userCharacters={userCharacters}
                         setUserCharacters={setUserCharacters}
                         displayedCharacter={displayedCharacter}
                         setDisplayedCharacter={setDisplayedCharacter}
-                        displayedCharacterMeso={displayedCharacterMeso}
-                        setDisplayedCharacterMeso={setDisplayedCharacterMeso}
                     />
                 </div>
             </div>

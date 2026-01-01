@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
             try {
                 setUser(username);
-                const data = await getUserId(username);
+                const data = await getUserId({username});
                 console.log("Changing userid");
                     setUserId(data);
                     
