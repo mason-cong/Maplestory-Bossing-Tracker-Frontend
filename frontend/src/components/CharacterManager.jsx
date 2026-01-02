@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import defaultCharacter from '../assets/default-character.png';
-import { createNewUserCharacters, updateUserCharacter } from '../api/trackerService';
+import { createNewUserCharacters, updateUserCharacter, deleteUserCharacter } from '../api/trackerService';
 import { CHARACTER_CLASSES_BY_TYPE } from '../assets/characterClasses';
 
 export default function CharacterManager({
@@ -24,6 +24,8 @@ export default function CharacterManager({
         characterClass: '',
         characterLevel: ''
     });
+
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const handleCreateCharacter = () => {
         setShowCreateForm(true);
@@ -118,6 +120,41 @@ export default function CharacterManager({
     const handleCancelEdit = () => {
         setShowEditForm(false);
         setEditCharacter({ characterName: '', characterClass: '', characterLevel: '' });
+    };
+
+    const handleDeleteCharacter = () => {
+        if (!displayedCharacter) {
+            alert('No character selected to delete');
+            return;
+        }
+        setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = async () => {
+        try {
+            const deletedCharacter = await deleteUserCharacter(userId, displayedCharacter.id);
+
+            const updatedCharacters = userCharacters.filter(
+                char => char.id !== displayedCharacter.id
+            );
+            setUserCharacters(updatedCharacters);
+
+            if (updatedCharacters.length > 0) {
+                setDisplayedCharacter(updatedCharacters[0]);
+            } else {
+                setDisplayedCharacter(null);
+            }
+
+            setShowDeleteConfirm(false);
+            alert('Character deleted successfully!');
+        } catch (err) {
+            console.error('Error deleting character:', err);
+            alert('Failed to delete character');
+        }
+    };
+
+    const cancelDelete = () => {
+        setShowDeleteConfirm(false);
     };
 
     return (
@@ -289,7 +326,7 @@ export default function CharacterManager({
             ) : (
 
                 // Character Display Card
-                <div className="flex flex-row p-5 border rounded-lg border-orange-100 bg-orange-300 w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto">
+                <div className="flex flex-row p-5 border rounded-lg border-orange-300 bg-orange-300 w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto">
                     <div className="min-h-20 w-1/3 lg:min-w-28 flex items-center justify-center">
                         <img src={defaultCharacter} className="h-auto w-full max-w-32" alt="Character" />
                     </div>
@@ -347,12 +384,19 @@ export default function CharacterManager({
                                     </div>
                                 )}
                             </div>
+                            <div className="flex gap-1">
+                                <button
+                                    className="bg-orange-100 text-black px-3 rounded hover:bg-orange-200 transition-colors"
+                                    onClick={handleEditCharacter}>
+                                    Edit
+                                </button>
+                                <button
+                                    className="bg-red-200 text-black px-3 rounded hover:bg-red-400 transition-colors"
+                                    onClick={handleDeleteCharacter}>
+                                    Delete
+                                </button>
+                            </div>
 
-                            <button
-                                className="bg-black text-white px-3 py-1 rounded hover:bg-gray-800 transition-colors"
-                                onClick={handleEditCharacter}>
-                                Edit
-                            </button>
                         </div>
                         <div className="flex flex-col w-full gap-3">
                             <div className="flex flex-row items-center justify-between w-full">
@@ -371,6 +415,32 @@ export default function CharacterManager({
                     </div>
                 </div>
             )}
+
+            {/*Character delete confirmation*/}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 bg-opacity-0 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-xl max-w-md">
+                        <h3 className="text-xl font-bold text-gray-800 mb-4">Delete Character?</h3>
+                        <p className="text-gray-600 mb-6">
+                            Are you sure you want to delete <strong>{displayedCharacter?.characterName}</strong>
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={confirmDelete}
+                                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                            >
+                                Delete
+                            </button>
+                            <button
+                                onClick={cancelDelete}
+                                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>)}
+
         </div>
     );
 }
