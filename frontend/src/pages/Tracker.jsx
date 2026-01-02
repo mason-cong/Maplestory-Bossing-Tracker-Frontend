@@ -1,15 +1,20 @@
+import '../index.css';
 import defaultChar from '../assets/default-character.png';
 import React, { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../AuthContext";
-import '../index.css';
 import InputMenu from '../components/addBosses';
-import { getUserCharacters, getUserMeso } from '../api/trackerService';
+import CharacterManager from '../components/CharacterManager';
 import MesoChart from '../components/mesoChart';
+import { getUserCharacters, getUserMeso } from '../api/trackerService';
+
 const Tracker = () => {
     const {user, userId, loading} = useContext(AuthContext);
     const [displayedMeso, setDisplayedMeso] = useState([]);
     const [displayedCharacter, setDisplayedCharacter] = useState([]);
+    const [displayedCharacterMeso, setDisplayedCharacterMeso] = useState(0);
     const [userCharacters, setUserCharacters] = useState([]);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [loadingMesos, setLoadingMesos] = useState(false);
 
     //handles bg change
     useEffect(() => {
@@ -34,25 +39,46 @@ const Tracker = () => {
 
             const loadData = async() => {
                 try {
-                    // Step 2: Get characters with that userId
                     const charactersResponse = await getUserCharacters(userId);
                     setUserCharacters(charactersResponse);
 
                     charactersResponse?.forEach((character) => {
                         try {
-                            const characterMeso = async () => await getUserMeso(character.id);
+                            const characterMeso = async () => await getUserMeso(userId, character.id);
                             setDisplayedMeso((displayedMeso) => [...displayedMeso, characterMeso]);
                         } catch (error) {
                             console.error(error);
                         }
                     });
-                } catch (err) {
-                    setError(err.message);
+                } catch (error) {
+                    console.error(error);
                 } 
             };
             loadData();
 
     }, [loading, userId]);
+
+    {/*useEffect(() => {
+    if (!displayedCharacter) return;
+
+    const fetchWeeklyMesos = async () => {
+        setLoadingMesos(true);
+        try {
+            // Replace with your actual API endpoint
+            const characterMeso = await getUserMeso(userId, displayedCharacter.id);
+            setDisplayedCharacterMeso(characterMeso);
+        } catch (err) {
+            console.error('Error fetching weekly mesos:', err);
+            setDisplayedCharacterMeso(0);
+        // Fallback to 0 on error
+        } finally {
+            setLoadingMesos(false);
+        }
+    };
+
+    fetchWeeklyMesos();
+    }, [displayedCharacter]); // Re-run whenever displayedCharacter changes */}
+
 
 
     if (loading) {
@@ -63,56 +89,16 @@ const Tracker = () => {
         <div className="flex-grow flex flex-wrap gap-3 p-4 mt-10 justify-center w-full">
             <div className="flex flex-col gap-2 lg:w-[40rem]">
                 <div className="flex flex-row p-5 border rounded-lg border-orange-100 bg-orange-300 w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto">
-                    <div className="min-h-20 w-1/3 lg:min-w-28 flex items-center justify-center">
-                        <img src={defaultChar} className='h-auto w-full max-w-32'/>
-                    </div>
-
-                    <div className="p-3 flex flex-col items-center w-full">
-                        <div className="my-3 flex flex-row justify-between w-full items-center text-lg">
-                            charName
-                            <button className='bg-black'>
-                                edit button
-                            </button>
-                        </div>
-
-                        <div className="flex flex-col w-full gap-3">
-                            <div className="flex flex-row items-center justify-between w-full">
-                                <strong className="text-sm">Class:</strong>
-                                <p>N/A</p>
-                            </div>
-                            <div className="flex flex-row items-center justify-between w-full">
-                                <strong className="text-sm">Weekly Mesos:</strong>
-                                <p>0</p>
-                            </div>
-                            <div className="flex flex-row items-center justify-between w-full">
-                                <strong className="text-sm">Level:</strong>
-                                <p>0</p>
-                            </div>
-                        </div>   
-
-                        <ul>
-                        {userCharacters?.map((character) => {
-                            <li key = {character.id}>
-                                {character.name}
-                                <button onClick={() => setDisplayedCharacter(character)}>Selected Character</button>
-                            </li>
-                        
-                        })}
-                        {console.log(userCharacters)}
-
-                        {displayedCharacter && (
-                            <div>
-                                Details here
-                            </div>
-                        )}
-                        </ul>
-                    </div>
-
-                   
-
+                    <CharacterManager 
+                        userId = {userId}
+                        userCharacters={userCharacters}
+                        setUserCharacters={setUserCharacters}
+                        displayedCharacter={displayedCharacter}
+                        setDisplayedCharacter={setDisplayedCharacter}
+                    />
                 </div>
             </div>
-            
+
             <div className='flex flex-wrap flex-col gap-4 items-center justify-center'>
                 <div className="lg:w-[46rem]"> 
                     <div className="flex flex-wrap lg:flex-col gap-2 items-center justify-center lg:justify-start">
@@ -145,21 +131,18 @@ const Tracker = () => {
                 <div className='lg:w-[46rem]'>
                     <div className="flex flex-wrap lg:flex-col gap-2 items-center justify-center lg:justify-start">
                         <div className="flex flex-col p-5 border rounded-lg border-orange-100 bg-orange-300 items-center w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto">
-                                <div className="min-h-20 flex-col items-center justify-center">
-                                    Weekly Bosses
-                                </div>
-                                <div className='grid grid-cols-7 gap-4'>
-                                    <div className='text-center select-none'>
+                            <div className="min-h-20 flex-col items-center justify-center">
+                                Weekly Bosses
+                            </div>
+                            <div className='grid grid-cols-7 gap-4'>
+                                <div className='text-center select-none'>
 
-                                    </div>
                                 </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <InputMenu></InputMenu>
             </div>
-
         </div>
     );
 
