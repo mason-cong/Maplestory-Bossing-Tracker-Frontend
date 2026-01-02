@@ -1,10 +1,9 @@
 import '../index.css';
-import defaultChar from '../assets/default-character.png';
 import React, { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../AuthContext";
 import InputMenu from '../components/addBosses';
 import CharacterManager from '../components/CharacterManager';
-import MesoChart from '../components/mesoChart';
+import MesoChart from '../components/MesoChart';
 import { getUserCharacters, getUserMeso } from '../api/trackerService';
 
 const Tracker = () => {
@@ -44,8 +43,7 @@ const Tracker = () => {
 
                     charactersResponse?.forEach((character) => {
                         try {
-                            const characterMeso = async () => await getUserMeso(userId, character.id);
-                            setDisplayedMeso((displayedMeso) => [...displayedMeso, characterMeso]);
+                            setDisplayedMeso((displayedMeso) => [...displayedMeso, character.characterMeso]);
                         } catch (error) {
                             console.error(error);
                         }
@@ -57,29 +55,6 @@ const Tracker = () => {
             loadData();
 
     }, [loading, userId]);
-
-    {/*useEffect(() => {
-    if (!displayedCharacter) return;
-
-    const fetchWeeklyMesos = async () => {
-        setLoadingMesos(true);
-        try {
-            // Replace with your actual API endpoint
-            const characterMeso = await getUserMeso(userId, displayedCharacter.id);
-            setDisplayedCharacterMeso(characterMeso);
-        } catch (err) {
-            console.error('Error fetching weekly mesos:', err);
-            setDisplayedCharacterMeso(0);
-        // Fallback to 0 on error
-        } finally {
-            setLoadingMesos(false);
-        }
-    };
-
-    fetchWeeklyMesos();
-    }, [displayedCharacter]); // Re-run whenever displayedCharacter changes */}
-
-
 
     if (loading) {
         return <div>Loading authentication</div>;
@@ -107,22 +82,10 @@ const Tracker = () => {
                                     Total Weekly Meso Income
                                 </div>
                                 <div className="p-3 flex flex-col md:flex-row items-center w-full">
-                                    <div className="w-full lg:w-1/2">
+                                    <div className="w-full justify-center">
+                                        <MesoChart userCharacters={userCharacters}></MesoChart>
                                     </div>
-                                <div className="flex flex-col w-full gap-3">
-                                    <div className="flex flex-row items-center justify-between w-full">
-                                        <strong className="text-sm">Class:</strong>
-                                        <p>N/A</p>
-                                    </div>
-                                    <div className="flex flex-row items-center justify-between w-full">
-                                        <strong className="text-sm">Weekly Mesos:</strong>
-                                        <p>0</p>
-                                    </div>
-                                    <div className="flex flex-row items-center justify-between w-full">
-                                        <strong className="text-sm">Level:</strong>
-                                        <p>0</p>
-                                    </div>
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
