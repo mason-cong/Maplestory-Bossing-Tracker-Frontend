@@ -36,9 +36,25 @@ export default function BossManager({ userId, characterId, weeklyBosses = [], on
 
 	const splitBossName = (bossName) => {
 		const [diffculty, name] = bossName.split('_');
-		return name
+		const formatted = formatName(name);
+		return formatted;
 	};
 
+	const formatDifficulty = (difficulty) => {
+		if (!difficulty) return '';
+		return difficulty.charAt(0).toUpperCase() + difficulty.slice(1).toLowerCase();
+	};
+
+	const formatName = (name) => {
+		if (!name) return '';
+		return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+	};
+
+	const splitBossDifficulty = (bossName) => {
+		const [difficulty, name] = bossName.split('_');
+		const formatted = formatDifficulty(difficulty);
+		return formatted;
+	};
 
 	// Get list of already added boss names to prevent duplicates
 	const addedBossNames = bossSlots
@@ -51,9 +67,12 @@ export default function BossManager({ userId, characterId, weeklyBosses = [], on
 
 		if (existingBoss) {
 			// Editing existing boss
+			const name = splitBossName(existingBoss.bossName);
+			const diff = splitBossDifficulty(existingBoss.bossName);
 			setIsEditing(true);
-			setSelectedBoss(existingBoss.bossName);
-			setSelectedDifficulty(existingBoss.difficulty);
+			setSelectedBoss(name);
+			setSelectedDifficulty(diff);
+			console.log(name)
 			setSelectedPartySize(existingBoss.partySize.toString());
 		} else {
 			// Adding new boss
@@ -184,7 +203,7 @@ export default function BossManager({ userId, characterId, weeklyBosses = [], on
 						>
 							{slot.boss ? (
 								// Filled Slot
-								
+
 								<div className="flex flex-col h-full">
 									<img
 										src={getBossImagePath(splitBossName(slot.boss.bossName))}
