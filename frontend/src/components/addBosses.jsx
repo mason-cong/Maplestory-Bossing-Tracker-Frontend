@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const availableBosses = {
+export const availableBosses = {
   "Zakum": {
     "Chaos": [1,2,3,4,5,6]
   },
@@ -33,6 +33,9 @@ const availableBosses = {
     "Hard": [1,2,3,4,5,6]
   },
   "Akechi Mitsuhide": {
+    "Normal": [1,2,3,4,5,6]
+  },
+  "Princess No": {
     "Normal": [1,2,3,4,5,6]
   },
   "Lotus": {
