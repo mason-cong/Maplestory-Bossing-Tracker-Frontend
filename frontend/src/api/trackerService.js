@@ -8,6 +8,7 @@ const getAuthHeaders = () => {
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+//user character list
 export const getUserCharacters = async (userID) => {
     try {
         const response = await axios.get(`${API_URL}/${userID}`, {
@@ -16,6 +17,18 @@ export const getUserCharacters = async (userID) => {
         return response.data;
     } catch (error) {
         throw error.response?.data?.msg || "Failed to get user characters";
+    }
+};
+
+//single user character by id
+export const getUserCharacter = async (userID, charID) => {
+    try {
+        const response = await axios.get(`${API_URL}/${userID}/${charID}`, {
+            headers: getAuthHeaders(),
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.msg || "Failed to get user character";
     }
 };
 
@@ -77,7 +90,7 @@ export const addBossToCharacter = async (userID, charID, bossData) => {
 
 export const updateBossToCharacter = async (userID, charID, bossID, bossData) => {
     try {
-        const response = await axios.put(`${API_URL}/${userID}/${charID}/${bossID}/bosses`, bossData, {
+        const response = await axios.put(`${API_URL}/${userID}/${charID}/bosses/${bossID}`, bossData, {
             headers: getAuthHeaders(),
         });
         return response.data;
@@ -88,7 +101,7 @@ export const updateBossToCharacter = async (userID, charID, bossID, bossData) =>
 
 export const deleteBossToCharacter = async (userID, charID, bossID) => {
     try {
-        const response = await axios.delete(`${API_URL}/${userID}/${charID}/${bossID}/bosses`, {
+        const response = await axios.delete(`${API_URL}/${userID}/${charID}/bosses/${bossID}`, {
             headers: getAuthHeaders(),
         });
         return response.data;

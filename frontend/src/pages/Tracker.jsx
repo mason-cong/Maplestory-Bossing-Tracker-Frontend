@@ -5,7 +5,7 @@ import InputMenu from '../components/addBosses';
 import CharacterManager from '../components/CharacterManager';
 import BossManager from '../components/BossManager';
 import MesoChart from '../components/MesoChart';
-import { getUserCharacters, getUserMeso } from '../api/trackerService';
+import { getUserCharacters, getUserCharacter } from '../api/trackerService';
 
 const Tracker = () => {
     const { user, userId, loading } = useContext(AuthContext);
@@ -15,13 +15,6 @@ const Tracker = () => {
     const [userCharacters, setUserCharacters] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [loadingMesos, setLoadingMesos] = useState(false);
-
-    const handleBossesUpdate = (updatedBosses) => {
-        setDisplayedCharacter(prev => ({
-            ...prev,
-            weeklyBosses: updatedBosses
-        }));
-    };
 
     //handles bg change
     useEffect(() => {
@@ -33,11 +26,6 @@ const Tracker = () => {
             document.body.classList.remove('tracker-class');
         };
     }, []); // Empty dependency array ensures this runs only once on mount and unmount
-
-    //handles tracker screen updates
-    useEffect(() => {
-
-    }, []);
 
     //pie chart updates
     //we need to set another useeffect to get the usercharacters and wait to load site
@@ -67,6 +55,29 @@ const Tracker = () => {
     if (loading) {
         return <div>Loading authentication</div>;
     }
+
+    const handleBossesUpdate = (updatedBosses) => {
+        setDisplayedCharacter(prev => ({
+            ...prev,
+            weeklyBosses: updatedBosses
+        }));
+    };
+
+    const refetchCharacter = async () => {
+        if (!displayedCharacter?.id) return;
+
+        try {
+            const refreshedCharacter = await getUserCharacter(userId, displayedCharacter.id);
+            setDisplayedCharacter(refreshedCharacter);
+
+            setUserCharacters(prev =>
+                prev.map(char => char.id === refreshedCharacter.id ? refreshedCharacter : char)
+            );
+        } catch (err) {
+            console.error("Error fetching character", err)
+        }
+    };
+
 
     return (
         <div className="flex-grow flex flex-wrap gap-3 p-4 mt-10 justify-center w-full">
@@ -107,6 +118,7 @@ const Tracker = () => {
                                 characterId={displayedCharacter?.id}
                                 weeklyBosses={displayedCharacter?.weeklyBosses || []}
                                 onBossesUpdate={handleBossesUpdate}
+                                onCharacterRefetch={refetchCharacter}
                             />
                         </div>
                     </div>

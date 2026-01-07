@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react';
 import { availableBosses } from './addBosses';
 import { addBossToCharacter, updateBossToCharacter, deleteBossToCharacter } from '../api/trackerService';
 
-export default function BossManager({ userId, characterId, weeklyBosses = [], onBossesUpdate }) {
+export default function BossManager({ userId,
+	characterId,
+	weeklyBosses = [],
+	onBossesUpdate,
+	onCharacterRefetch }) {
 	const [bossSlots, setBossSlots] = useState([]);
 	const [showBossModal, setShowBossModal] = useState(false);
 	const [currentSlot, setCurrentSlot] = useState(null);
@@ -10,6 +14,7 @@ export default function BossManager({ userId, characterId, weeklyBosses = [], on
 	const [selectedDifficulty, setSelectedDifficulty] = useState('');
 	const [selectedPartySize, setSelectedPartySize] = useState('');
 	const [isEditing, setIsEditing] = useState(false);
+	const [editingBoss, setEditingBoss] = useState(null);
 
 	// Initialize 14 slots when component mounts or weeklyBosses changes
 	useEffect(() => {
@@ -27,39 +32,45 @@ export default function BossManager({ userId, characterId, weeklyBosses = [], on
 		return `/src/assets/boss profiles/${filename}.png`;
 	};
 
-	const getBossName = (bossName, difficulty) => {
+	const changeToBackendName = (bossName, difficulty) => {
 		const boss_name = bossName.toUpperCase().replace(/\s+/g, '_');
 		const diffculty_ = difficulty.toUpperCase();
 		let convertedBoss = diffculty_ + '_' + boss_name;
 		return convertedBoss;
 	};
 
-	const splitBossName = (bossName) => {
-		const [diffculty, name] = bossName.split('_');
-		const formatted = formatName(name);
-		return formatted;
+	const splitBossName = (backBossName) => {
+		const { bossName } = parseBossFromBackend(backBossName);
+		return bossName;
 	};
 
-	const formatDifficulty = (difficulty) => {
-		if (!difficulty) return '';
-		return difficulty.charAt(0).toUpperCase() + difficulty.slice(1).toLowerCase();
+	const splitBossDifficulty = (backBossName) => {
+		const { difficulty } = parseBossFromBackend(backBossName)
+		return difficulty;
 	};
 
-	const formatName = (name) => {
-		if (!name) return '';
-		return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-	};
+	const parseBossFromBackend = (backendBossName) => {
+		if (!backendBossName) return { difficulty: '', bossName: '' };
 
-	const splitBossDifficulty = (bossName) => {
-		const [difficulty, name] = bossName.split('_');
-		const formatted = formatDifficulty(difficulty);
-		return formatted;
+		const parts = backendBossName.split('_');
+
+		// First part is always difficulty
+		const difficulty = parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
+
+		// Everything after first underscore is the boss name
+		const bossNameParts = parts.slice(1);
+		const bossName = bossNameParts
+			.map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+			.join(' ');
+
+		return { difficulty, bossName };
 	};
 
 	// Get list of already added boss names to prevent duplicates
 	const addedBossNames = bossSlots
 		.filter(slot => slot.boss !== null)
-		.map(slot => slot.boss.bossName);
+		.map(slot => splitBossName(slot.boss.bossName));
+	console.log('Already added bosses:', addedBossNames);
 
 	// Open modal to add/edit boss
 	const handleSlotClick = (slotNumber, existingBoss = null) => {
@@ -69,13 +80,14 @@ export default function BossManager({ userId, characterId, weeklyBosses = [], on
 			// Editing existing boss
 			const name = splitBossName(existingBoss.bossName);
 			const diff = splitBossDifficulty(existingBoss.bossName);
+			setEditingBoss(existingBoss);
 			setIsEditing(true);
 			setSelectedBoss(name);
 			setSelectedDifficulty(diff);
-			console.log(name)
 			setSelectedPartySize(existingBoss.partySize.toString());
 		} else {
 			// Adding new boss
+			setEditingBoss(null);
 			setIsEditing(false);
 			setSelectedBoss(null);
 			setSelectedDifficulty('');
@@ -103,8 +115,8 @@ export default function BossManager({ userId, characterId, weeklyBosses = [], on
 		try {
 			if (isEditing) {
 				// Update existing boss
-				const converted = getBossName(selectedBoss, selectedDifficulty);
-				const updatedBoss = await updateBossToCharacter(userId, characterId, boss.id, { bossName: converted, partySize: selectedPartySize });
+				const converted = changeToBackendName(selectedBoss, selectedDifficulty);
+				const updatedBoss = await updateBossToCharacter(userId, characterId, editingBoss.id, { bossName: converted, partySize: selectedPartySize });
 				// Update the slot with new data
 				const newSlots = [...bossSlots];
 				newSlots[currentSlot - 1] = { slotNumber: currentSlot, boss: updatedBoss };
@@ -113,9 +125,13 @@ export default function BossManager({ userId, characterId, weeklyBosses = [], on
 				const newWeeklyBosses = newSlots.map(slot => slot.boss).filter(Boolean);
 				onBossesUpdate(newWeeklyBosses);
 
+				if (onCharacterRefetch) {
+					await onCharacterRefetch();
+				}
+
 			} else {
 				// Add new boss
-				const converted = getBossName(selectedBoss, selectedDifficulty);
+				const converted = changeToBackendName(selectedBoss, selectedDifficulty);
 				const addedBoss = await addBossToCharacter(userId, characterId, { bossName: converted, partySize: selectedPartySize });
 
 				// Update the slot with new boss
@@ -125,6 +141,11 @@ export default function BossManager({ userId, characterId, weeklyBosses = [], on
 				// Update parent with new array
 				const newWeeklyBosses = newSlots.map(slot => slot.boss).filter(Boolean);
 				onBossesUpdate(newWeeklyBosses);
+
+				if (onCharacterRefetch) {
+					await onCharacterRefetch();
+				}
+
 			}
 
 			// Reset and close
@@ -139,8 +160,10 @@ export default function BossManager({ userId, characterId, weeklyBosses = [], on
 	// Handle deleting a boss
 	const handleDeleteBoss = async () => {
 		const boss = bossSlots[currentSlot - 1].boss;
+		const name = splitBossName(boss.bossName);
+		const diff = splitBossDifficulty(boss.bossName);
 		const confirmed = window.confirm(
-			`Are you sure you want to delete ${boss.bossName} (${boss.difficulty})?`
+			`Are you sure you want to delete the boss ${name} (${diff})?`
 		);
 
 		if (!confirmed) return;
@@ -155,6 +178,10 @@ export default function BossManager({ userId, characterId, weeklyBosses = [], on
 			// Update parent with new array
 			const newWeeklyBosses = newSlots.map(slot => slot.boss).filter(Boolean);
 			onBossesUpdate(newWeeklyBosses);
+
+			if (onCharacterRefetch) {
+				await onCharacterRefetch();
+			}
 
 			closeModal();
 			alert('Boss removed successfully!');
@@ -171,6 +198,7 @@ export default function BossManager({ userId, characterId, weeklyBosses = [], on
 		setSelectedDifficulty('');
 		setSelectedPartySize('');
 		setIsEditing(false);
+		setEditingBoss(null);
 	};
 
 	const availablePartySizes = selectedBoss && selectedDifficulty
