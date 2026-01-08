@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { availableBosses } from './addBosses';
+import { availableBosses } from './availableBosses';
+import { getDifficultyBanner } from './difficultyBanners';
 import { addBossToCharacter, updateBossToCharacter, deleteBossToCharacter } from '../api/trackerService';
 
 export default function BossManager({ userId,
@@ -70,7 +71,6 @@ export default function BossManager({ userId,
 	const addedBossNames = bossSlots
 		.filter(slot => slot.boss !== null)
 		.map(slot => splitBossName(slot.boss.bossName));
-	console.log('Already added bosses:', addedBossNames);
 
 	// Open modal to add/edit boss
 	const handleSlotClick = (slotNumber, existingBoss = null) => {
@@ -210,7 +210,7 @@ export default function BossManager({ userId,
 	return (
 		<div className="w-full">
 			{/* Header with Progress */}
-			<div className="bg-orange-300 p-6 rounded-lg shadow-md mb-4">
+			<div className="bg-orange-300 p-6 rounded-lg mb-4">
 				<div className="flex justify-between items-center mb-4">
 					<h3 className="text-xl font-bold text-gray-800">Weekly Bosses</h3>
 					<span className="text-lg font-semibold text-black">
@@ -224,7 +224,7 @@ export default function BossManager({ userId,
 						<button
 							key={slot.slotNumber}
 							onClick={() => handleSlotClick(slot.slotNumber, slot.boss)}
-							className={`p-4 rounded-lg border-2 transition-all min-h-32 flex flex-col ${slot.boss
+							className={`p-2 rounded-lg border-2 transition-all min-h-32 flex flex-col ${slot.boss
 								? 'border-black bg-[{getBossImagePath(bossName)}] hover:bg-orange-150'
 								: 'border-black border-dashed hover:border-black hover:bg-orange-200 bg-orange-100'
 								}`}
@@ -233,7 +233,8 @@ export default function BossManager({ userId,
 								// Filled Slot
 
 								<div className="flex flex-col h-full">
-									<img
+									<div className="relative w-full h-20 rounded overflow-hidden mb-2">
+										<img
 										src={getBossImagePath(splitBossName(slot.boss.bossName))}
 										alt={slot.boss.bossName}
 										className="w-full h-full object-cover rounded"
@@ -244,6 +245,14 @@ export default function BossManager({ userId,
 											// e.target.style.display = 'none';
 										}}
 									/>
+										{/* Difficulty Banner - Bottom Right Corner */}
+										<img
+											src={getDifficultyBanner(splitBossDifficulty(slot.boss.bossName))}
+											alt={"Normal"}
+											className="absolute bottom-[0px] right-[0px] w-full object-contain drop-shadow-lg"
+										/>
+									</div>
+				
 									<div className="flex-1 flex flex-col justify-center">
 										<p className="text-xs text-black">Party Size: {slot.boss.partySize}</p>
 									</div>
@@ -280,7 +289,7 @@ export default function BossManager({ userId,
 							{/* Boss Selection Grid */}
 							<div className="mb-6">
 								<h3 className="text-lg font-semibold mb-3">Select Boss</h3>
-								<div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+								<div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
 									{Object.keys(availableBosses).map((bossName) => {
 										const isAlreadyAdded = addedBossNames.includes(bossName) &&
 											(!isEditing || bossName !== selectedBoss);
@@ -291,10 +300,10 @@ export default function BossManager({ userId,
 												onClick={() => !isAlreadyAdded && handleSelectBoss(bossName)}
 												disabled={isAlreadyAdded}
 												className={`p-4 rounded-lg border-2 transition-all ${selectedBoss === bossName
-													? 'border-orange-500 bg-orange-50'
+													? 'border-orange-600 bg-orange-100'
 													: isAlreadyAdded
 														? 'border-gray-200 bg-gray-100 opacity-50 cursor-not-allowed'
-														: 'border-gray-200 hover:border-gray-300'
+														: 'border-gray-100 hover:border-gray-300'
 													}`}
 											>
 												<div className="w-full h-24 bg-orange-300 rounded mb-2 flex items-center justify-center">

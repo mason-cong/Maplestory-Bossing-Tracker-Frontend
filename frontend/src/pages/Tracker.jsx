@@ -1,7 +1,6 @@
 import '../index.css';
 import React, { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../AuthContext";
-import InputMenu from '../components/addBosses';
 import CharacterManager from '../components/CharacterManager';
 import BossManager from '../components/BossManager';
 import MesoChart from '../components/MesoChart';
@@ -80,9 +79,9 @@ const Tracker = () => {
 
 
     return (
-        <div className="flex-grow flex flex-wrap gap-3 p-4 mt-10 justify-center w-full">
-            <div className="flex flex-col gap-2 lg:w-[40rem]">
-                <div className="flex flex-row p-5 border rounded-lg border-orange-100 bg-orange-300 w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto">
+        <div className="flex-grow flex flex-wrap gap-1 p-4 mt-10 justify-center w-full">
+            <div className="flex flex-col gap-2 lg:w-[46rem]">
+                <div className="flex flex-row p-5 border rounded-lg border-orange-100 bg-orange-300 w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto shadow-md">
                     <CharacterManager
                         userId={userId}
                         userCharacters={userCharacters}
@@ -91,28 +90,9 @@ const Tracker = () => {
                         setDisplayedCharacter={setDisplayedCharacter}
                     />
                 </div>
-            </div>
-
-            <div className='flex flex-wrap flex-col gap-4 items-center justify-center'>
-                <div className="lg:w-[46rem]">
+  
                     <div className="flex flex-wrap lg:flex-col gap-2 items-center justify-center lg:justify-start">
-                        <div className="flex flex-col p-5 border rounded-lg border-orange-100 bg-orange-300 items-center w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto">
-                            <div className="min-h-20 flex-col items-center justify-center">
-                                Total Weekly Meso Income
-                            </div>
-                            <div className="p-3 flex flex-col md:flex-row items-center w-full">
-                                <div className="w-full justify-center">
-                                    <MesoChart userCharacters={userCharacters}></MesoChart>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className='lg:w-[46rem]'>
-                    <div className="flex flex-wrap lg:flex-col gap-2 items-center justify-center lg:justify-start">
-                        <div className="flex flex-col p-5 border rounded-lg border-orange-100 bg-orange-300 items-center w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto">
+                        <div className="flex flex-col p-5 border rounded-lg border-orange-100 bg-orange-300 items-center w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto shadow-md">
                             <BossManager
                                 userId={userId}
                                 characterId={displayedCharacter?.id}
@@ -122,7 +102,19 @@ const Tracker = () => {
                             />
                         </div>
                     </div>
+
+            </div>
+
+            <div className='flex flex-wrap flex-col gap-4 items-center'>
+                <div className="lg:w-[46rem]">
+                    <div className="flex flex-wrap lg:flex-col gap-2 items-center justify-center lg:justify-start">
+                        <div className="flex flex-col p-5 border rounded-lg border-orange-100 bg-orange-300 items-center w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto shadow-md">
+                            <MesoChart userCharacters={userCharacters}></MesoChart>
+                        </div>
+                    </div>
                 </div>
+
+                
             </div>
         </div>
     );
