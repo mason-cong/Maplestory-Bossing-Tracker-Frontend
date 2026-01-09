@@ -4,7 +4,6 @@ import { Pie } from 'react-chartjs-2';
 export default function MesoChart({
     userCharacters
 }) {
-    console.log(userCharacters);
     if (!userCharacters || userCharacters.length === 0) {
         return <div className="text-black justify-center">No characters to display</div>;
     }

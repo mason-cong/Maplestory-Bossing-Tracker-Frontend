@@ -384,7 +384,7 @@ export default function CharacterManager({
                                     </div>
                                 )}
                             </div>
-                            <div className="flex gap-1">
+                            <div className="flex gap-2">
                                 <button
                                     className="bg-orange-100 text-black px-3 rounded hover:bg-orange-200 transition-colors"
                                     onClick={handleEditCharacter}>

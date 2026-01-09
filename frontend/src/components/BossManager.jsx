@@ -3,11 +3,13 @@ import { availableBosses } from './availableBosses';
 import { getDifficultyBanner } from './difficultyBanners';
 import { addBossToCharacter, updateBossToCharacter, deleteBossToCharacter } from '../api/trackerService';
 
-export default function BossManager({ userId,
+export default function BossManager({
+	userId,
 	characterId,
 	weeklyBosses = [],
 	onBossesUpdate,
 	onCharacterRefetch }) {
+
 	const [bossSlots, setBossSlots] = useState([]);
 	const [showBossModal, setShowBossModal] = useState(false);
 	const [currentSlot, setCurrentSlot] = useState(null);
@@ -16,6 +18,7 @@ export default function BossManager({ userId,
 	const [selectedPartySize, setSelectedPartySize] = useState('');
 	const [isEditing, setIsEditing] = useState(false);
 	const [editingBoss, setEditingBoss] = useState(null);
+	const [searchQuery, setSearchQuery] = useState('');
 
 	// Initialize 14 slots when component mounts or weeklyBosses changes
 	useEffect(() => {
@@ -199,6 +202,7 @@ export default function BossManager({ userId,
 		setSelectedPartySize('');
 		setIsEditing(false);
 		setEditingBoss(null);
+		setSearchQuery('');
 	};
 
 	const availablePartySizes = selectedBoss && selectedDifficulty
@@ -206,6 +210,10 @@ export default function BossManager({ userId,
 		: [];
 
 	const filledSlots = bossSlots.filter(slot => slot.boss !== null).length;
+
+	const filteredBosses = Object.keys(availableBosses).filter(bossName =>
+		bossName.toLowerCase().includes(searchQuery.toLowerCase())
+	);
 
 	return (
 		<div className="w-full">
@@ -235,16 +243,16 @@ export default function BossManager({ userId,
 								<div className="flex flex-col h-full">
 									<div className="relative w-full h-20 rounded overflow-hidden mb-2">
 										<img
-										src={getBossImagePath(splitBossName(slot.boss.bossName))}
-										alt={slot.boss.bossName}
-										className="w-full h-full object-cover rounded"
-										onError={(e) => {
-											// Fallback if image doesn't exist
-											e.target.src = '/images/bosses/default.png';
-											// Or hide image and show text
-											// e.target.style.display = 'none';
-										}}
-									/>
+											src={getBossImagePath(splitBossName(slot.boss.bossName))}
+											alt={slot.boss.bossName}
+											className="w-full h-full object-cover rounded"
+											onError={(e) => {
+												// Fallback if image doesn't exist
+												e.target.src = '/images/bosses/default.png';
+												// Or hide image and show text
+												// e.target.style.display = 'none';
+											}}
+										/>
 										{/* Difficulty Banner - Bottom Right Corner */}
 										<img
 											src={getDifficultyBanner(splitBossDifficulty(slot.boss.bossName))}
@@ -252,7 +260,7 @@ export default function BossManager({ userId,
 											className="absolute bottom-[0px] right-[0px] w-full object-contain drop-shadow-lg"
 										/>
 									</div>
-				
+
 									<div className="flex-1 flex flex-col justify-center">
 										<p className="text-xs text-black">Party Size: {slot.boss.partySize}</p>
 									</div>
@@ -286,14 +294,56 @@ export default function BossManager({ userId,
 								</button>
 							</div>
 
+							{/* Search Bar */}
+							{!isEditing && (
+								<div className="mb-6">
+									<div className="relative">
+										<input
+											type="text"
+											placeholder="Search for a boss..."
+											value={searchQuery}
+											onChange={(e) => setSearchQuery(e.target.value)}
+											className="w-full px-4 py-3 pl-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+										/>
+										<svg
+											className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+												d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+											/>
+										</svg>
+										{searchQuery && (
+											<button
+												onClick={() => setSearchQuery('')}
+												className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+											>
+												×
+											</button>
+										)}
+									</div>
+									{searchQuery && (
+										<p className="text-sm text-gray-600 mt-2">
+											Found {filteredBosses.length} boss{filteredBosses.length !== 1 ? 'es' : ''}
+										</p>
+									)}
+								</div>
+							)}
+
+
 							{/* Boss Selection Grid */}
 							<div className="mb-6">
 								<h3 className="text-lg font-semibold mb-3">Select Boss</h3>
 								<div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
-									{Object.keys(availableBosses).map((bossName) => {
+									{filteredBosses.map((bossName) => {
 										const isAlreadyAdded = addedBossNames.includes(bossName) &&
 											(!isEditing || bossName !== selectedBoss);
-
+										console.log(filteredBosses[0]);
 										return (
 											<button
 												key={bossName}
@@ -306,7 +356,7 @@ export default function BossManager({ userId,
 														: 'border-gray-100 hover:border-gray-300'
 													}`}
 											>
-												<div className="w-full h-24 bg-orange-300 rounded mb-2 flex items-center justify-center">
+												<div className="w-full h-30 bg-orange-300 rounded mb-2 flex items-center justify-center">
 													<img
 														src={getBossImagePath(bossName)}
 														alt={bossName}
@@ -324,6 +374,18 @@ export default function BossManager({ userId,
 										);
 									})}
 								</div>
+								{/* No results message */}
+								{filteredBosses.length === 0 && (
+									<div className="text-center py-8 text-gray-500">
+										<p className="text-lg">No bosses found matching "{searchQuery}"</p>
+										<button
+											onClick={() => setSearchQuery('')}
+											className="mt-2 text-orange-500 hover:text-orange-600 font-semibold"
+										>
+											Clear search
+										</button>
+									</div>
+								)}
 							</div>
 
 							{/* Difficulty Selection */}
