@@ -1,9 +1,9 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/signup";
-const API2_URL = "http://localhost:8080/login";
-const API3_URL = "http://localhost:8080/userInfo";
-
+const SIGNUP_URL = "http://localhost:8080/signup";
+const LOGIN_URL = "http://localhost:8080/login";
+const USERINFO_URL = "http://localhost:8080/userInfo";
+const FORGOT_PASSWORD_URL = "http://localhost:8080/auth/forgot-password";
 
 const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
@@ -12,7 +12,7 @@ const getAuthHeaders = () => {
 
 export const registerUser = async (userData) => {
     try {
-        const response = await axios.post(`${API_URL}`, userData);
+        const response = await axios.post(`${SIGNUP_URL}`, userData);
         return response.data;
     } catch (error) {
         throw error.response?.data?.msg || "Registration failed";
@@ -21,7 +21,7 @@ export const registerUser = async (userData) => {
 
 export const loginUser = async (userData) => {
     try {
-        const response = await axios.post(`${API2_URL}`, userData);
+        const response = await axios.post(`${LOGIN_URL}`, userData);
         return response.data;
     } catch (error) {
         throw error.response?.data?.msg || "Login failed";
@@ -30,7 +30,7 @@ export const loginUser = async (userData) => {
 
 export const getUserId = async (userData) => {
     try {
-        const response = await axios.post(`${API3_URL}`, userData, {
+        const response = await axios.post(`${USERINFO_URL}`, userData, {
             headers: getAuthHeaders(),
         });
         return response.data;
@@ -38,3 +38,27 @@ export const getUserId = async (userData) => {
         throw error.response?.data?.msg || "Login failed";
     }
 }
+
+export const forgotPassword = async (userData) => {
+    try {
+        const response = await axios.post(`${FORGOT_PASSWORD_URL}`, userData, {
+            headers: getAuthHeaders(),
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.msg || "Failed to reset password";
+    }
+}
+
+export const resetPassword = async (userData) => {
+    try {
+        const response = await axios.post(`${FORGOT_PASSWORD_URL}`, userData, {
+            headers: getAuthHeaders(),
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.msg || "Failed to reset password";
+    }
+}
+
+

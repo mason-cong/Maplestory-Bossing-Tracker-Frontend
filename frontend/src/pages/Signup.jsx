@@ -60,7 +60,7 @@ const Signup = () => {
                         <input
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}q
+                            onChange={(e) => setEmail(e.target.value)}
                             className="w-full px-4 py-2 mt-2 border rounded-md focus:ring-2 focus:ring-orange-400 outline-none"
                             placeholder="Enter your email"
                             required
@@ -79,7 +79,7 @@ const Signup = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-orange-400 text-white py-2 rounded-md hover:bg-orange-500 transition"
+                        className="w-full text-white py-2 rounded-md bg-purple-500 hover:bg-purple-700 transition"
                     >
                         Register
                     </button>

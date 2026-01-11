@@ -2,7 +2,7 @@
 
 @layer base {
   .tracker-class {
-    @apply bg-orange-100; /* Apply a light blue background */
+    @apply bg-linear-to-b from-orange-200/80 via-orange-200/60 to-sky-200/80; 
     @apply min-h-[100dvh];
   }
 }

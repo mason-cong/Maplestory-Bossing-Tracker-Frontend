@@ -12,7 +12,7 @@ const Home = () => {
                 <button type="button">
                     <Link 
                         to="/login" 
-                        className="text-2xl p-3 rounded-lg bg-purple-700 hover:bg-purple-800 text-white"
+                        className="text-2xl p-3 rounded-lg bg-purple-500 hover:bg-purple-700 text-white"
                     >
                         Login Now
                     </Link>

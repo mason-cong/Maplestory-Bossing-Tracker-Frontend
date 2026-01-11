@@ -65,53 +65,53 @@ export default function MesoChart({
     };
 
     return (
-    <div className="flex flex-col lg:flex-row gap-6 items-center">
-      {/* Pie Chart */}
-      <div className="w-80 h-80 flex-shrink-0">
-        <Pie data={data} options={options} />
-      </div>
+        <div className="flex flex-col lg:flex-row gap-6 items-center">
+            {/* Pie Chart */}
+            <div className="w-80 h-80 flex-shrink-0">
+                <Pie data={data} options={options} />
+            </div>
 
-      {/* Custom Legend and Total */}
-      <div className="flex flex-col gap-4">
-        {/* Total Mesos Display */}
-        <div className="bg-orange-100 border-2 border-orange-500 rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-gray-800 mb-1">Total Weekly Mesos</h3>
-          <p className="text-3xl font-bold text-orange-600">
-            {totalMesos.toLocaleString()}
-          </p>
-        </div>
-
-        {/* Custom Legend List */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <h4 className="font-semibold text-gray-800 mb-3">Characters</h4>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
-            {charactersWithMesos.map((char, index) => {
-              const percentage = ((char.characterMeso / totalMesos) * 100).toFixed(1);
-              const backgroundColor = data.datasets[0].backgroundColor[index];
-              
-              return (
-                <div key={char.id} className="flex items-center gap-3">
-                  {/* Color Box */}
-                  <div 
-                    className="w-4 h-4 rounded flex-shrink-0"
-                    style={{ backgroundColor }}
-                  ></div>
-                  
-                  {/* Character Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm text-gray-800 truncate">
-                      {char.characterName}
+            {/* Custom Legend and Total */}
+            <div className="flex flex-col gap-4">
+                {/* Total Mesos Display */}
+                <div className="bg-orange-100 border-2 border-orange-500 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-1">Total Weekly Mesos</h3>
+                    <p className="text-3xl font-bold text-orange-600">
+                        {totalMesos.toLocaleString()}
                     </p>
-                    <p className="text-xs text-gray-600">
-                      {char.characterMeso.toLocaleString()} ({percentage}%)
-                    </p>
-                  </div>
                 </div>
-              );
-            })}
-          </div>
+
+                {/* Custom Legend List */}
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                    <h4 className="font-semibold text-gray-800 mb-3">Characters</h4>
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {charactersWithMesos.map((char, index) => {
+                            const percentage = ((char.characterMeso / totalMesos) * 100).toFixed(1);
+                            const backgroundColor = data.datasets[0].backgroundColor[index];
+
+                            return (
+                                <div key={char.id} className="flex items-center gap-3">
+                                    {/* Color Box */}
+                                    <div
+                                        className="w-4 h-4 rounded flex-shrink-0"
+                                        style={{ backgroundColor }}
+                                    ></div>
+
+                                    {/* Character Info */}
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-medium text-sm text-gray-800 truncate">
+                                            {char.characterName}
+                                        </p>
+                                        <p className="text-xs text-gray-600">
+                                            {char.characterMeso.toLocaleString()} ({percentage}%)
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };

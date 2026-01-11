@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const API_URL = "http://localhost:8080/weekly-characters";
-const API2_URL = "http://localhost:8080/login";
 
 const getAuthHeaders = () => {
     const token = localStorage.getItem("token");

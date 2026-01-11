@@ -47,6 +47,11 @@ export default function CharacterManager({
             return;
         }
 
+        if (newCharacter.characterLevel > 300 || newCharacter.characterLevel <= 0) {
+            alert('Please enter a valid character level');
+            return;
+        }
+
         try {
             const createdCharacter = await createNewUserCharacters(userId, newCharacter);
 
@@ -69,7 +74,6 @@ export default function CharacterManager({
         setShowCreateForm(false);
         setNewCharacter({ characterName: '', characterClass: '', characterLevel: '' });
     };
-
 
     const handleEditCharacter = () => {
         if (!displayedCharacter) {
@@ -96,6 +100,11 @@ export default function CharacterManager({
     const handleSubmitEdit = async () => {
         if (!editCharacter.characterName || !editCharacter.characterClass || !editCharacter.characterLevel) {
             alert('Please fill in all fields');
+            return;
+        }
+
+        if (editCharacter.characterLevel > 300 || editCharacter.characterLevel <= 0) {
+            alert('Please enter a valid character level');
             return;
         }
 
@@ -399,16 +408,16 @@ export default function CharacterManager({
 
                         </div>
                         <div className="flex flex-col w-full gap-3">
-                            <div className="flex flex-row items-center justify-between w-full">
-                                <strong className="text-sm">Class:</strong>
+                            <div className="flex flex-row text-lg items-center justify-between w-full">
+                                <strong>Class:</strong>
                                 <p>{displayedCharacter?.characterClass || 'N/A'}</p>
                             </div>
-                            <div className="flex flex-row items-center justify-between w-full">
-                                <strong className="text-sm">Weekly Mesos:</strong>
-                                <p>{displayedCharacter.characterMeso || 0}</p>
+                            <div className="flex flex-row text-lg items-center justify-between w-full">
+                                <strong>Weekly Mesos:</strong>
+                                <p>{(displayedCharacter?.characterMeso || 0).toLocaleString()}</p>
                             </div>
-                            <div className="flex flex-row items-center justify-between w-full">
-                                <strong className="text-sm">Level:</strong>
+                            <div className="flex flex-row text-lg items-center justify-between w-full">
+                                <strong>Level:</strong>
                                 <p>{displayedCharacter?.characterLevel || 0}</p>
                             </div>
                         </div>

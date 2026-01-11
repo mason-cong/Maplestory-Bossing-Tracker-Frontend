@@ -1,5 +1,3 @@
-import React, { useState, useEffect } from 'react';
-
 export const availableBosses = {
   "Zakum": {
     "Chaos": [1,2,3,4,5,6]

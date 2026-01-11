@@ -43,12 +43,12 @@ export default function BossManager({
 		return convertedBoss;
 	};
 
-	const splitBossName = (backBossName) => {
+	const getBossName = (backBossName) => {
 		const { bossName } = parseBossFromBackend(backBossName);
 		return bossName;
 	};
 
-	const splitBossDifficulty = (backBossName) => {
+	const getBossDifficulty = (backBossName) => {
 		const { difficulty } = parseBossFromBackend(backBossName)
 		return difficulty;
 	};
@@ -58,10 +58,8 @@ export default function BossManager({
 
 		const parts = backendBossName.split('_');
 
-		// First part is always difficulty
 		const difficulty = parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
 
-		// Everything after first underscore is the boss name
 		const bossNameParts = parts.slice(1);
 		const bossName = bossNameParts
 			.map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
@@ -73,7 +71,7 @@ export default function BossManager({
 	// Get list of already added boss names to prevent duplicates
 	const addedBossNames = bossSlots
 		.filter(slot => slot.boss !== null)
-		.map(slot => splitBossName(slot.boss.bossName));
+		.map(slot => getBossName(slot.boss.bossName));
 
 	// Open modal to add/edit boss
 	const handleSlotClick = (slotNumber, existingBoss = null) => {
@@ -81,8 +79,8 @@ export default function BossManager({
 
 		if (existingBoss) {
 			// Editing existing boss
-			const name = splitBossName(existingBoss.bossName);
-			const diff = splitBossDifficulty(existingBoss.bossName);
+			const name = getBossName(existingBoss.bossName);
+			const diff = getBossDifficulty(existingBoss.bossName);
 			setEditingBoss(existingBoss);
 			setIsEditing(true);
 			setSelectedBoss(name);
@@ -163,8 +161,8 @@ export default function BossManager({
 	// Handle deleting a boss
 	const handleDeleteBoss = async () => {
 		const boss = bossSlots[currentSlot - 1].boss;
-		const name = splitBossName(boss.bossName);
-		const diff = splitBossDifficulty(boss.bossName);
+		const name = getBossName(boss.bossName);
+		const diff = getBossDifficulty(boss.bossName);
 		const confirmed = window.confirm(
 			`Are you sure you want to delete the boss ${name} (${diff})?`
 		);
@@ -243,7 +241,7 @@ export default function BossManager({
 								<div className="flex flex-col h-full">
 									<div className="relative w-full h-20 rounded overflow-hidden mb-2">
 										<img
-											src={getBossImagePath(splitBossName(slot.boss.bossName))}
+											src={getBossImagePath(getBossName(slot.boss.bossName))}
 											alt={slot.boss.bossName}
 											className="w-full h-full object-cover rounded"
 											onError={(e) => {
@@ -255,7 +253,7 @@ export default function BossManager({
 										/>
 										{/* Difficulty Banner - Bottom Right Corner */}
 										<img
-											src={getDifficultyBanner(splitBossDifficulty(slot.boss.bossName))}
+											src={getDifficultyBanner(getBossDifficulty(slot.boss.bossName))}
 											alt={"Normal"}
 											className="absolute bottom-[0px] right-[0px] w-full object-contain drop-shadow-lg"
 										/>
@@ -343,7 +341,6 @@ export default function BossManager({
 									{filteredBosses.map((bossName) => {
 										const isAlreadyAdded = addedBossNames.includes(bossName) &&
 											(!isEditing || bossName !== selectedBoss);
-										console.log(filteredBosses[0]);
 										return (
 											<button
 												key={bossName}
@@ -352,7 +349,7 @@ export default function BossManager({
 												className={`p-4 rounded-lg border-2 transition-all ${selectedBoss === bossName
 													? 'border-orange-600 bg-orange-100'
 													: isAlreadyAdded
-														? 'border-gray-200 bg-gray-100 opacity-50 cursor-not-allowed'
+														? 'border-gray-200 bg-gray-200 opacity-25 cursor-not-allowed'
 														: 'border-gray-100 hover:border-gray-300'
 													}`}
 											>
