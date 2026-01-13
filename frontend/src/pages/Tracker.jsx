@@ -1,9 +1,9 @@
 import '../index.css';
 import React, { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../AuthContext";
-import CharacterManager from '../components/CharacterManager';
-import BossManager from '../components/BossManager';
-import MesoChart from '../components/MesoChart';
+import CharacterManager from '../components/CharacterManager.jsx';
+import BossManager from '../components/BossManager.jsx';
+import MesoChart from '../components/MesoChart.jsx';
 import { getUserCharacters, getUserCharacter } from '../api/trackerService';
 
 const Tracker = () => {
