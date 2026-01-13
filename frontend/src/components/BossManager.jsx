@@ -19,6 +19,8 @@ export default function BossManager({
 	const [isEditing, setIsEditing] = useState(false);
 	const [editingBoss, setEditingBoss] = useState(null);
 	const [searchQuery, setSearchQuery] = useState('');
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
 
 	// Initialize 14 slots when component mounts or weeklyBosses changes
 	useEffect(() => {
@@ -118,6 +120,13 @@ export default function BossManager({
 			return;
 		}
 
+		// Prevent double submission
+		if (isSubmitting) {
+			console.log('Already submitting, please wait...');
+			return;
+		}
+		setIsSubmitting(true);
+
 		try {
 			if (isEditing) {
 				// Update existing boss
@@ -160,6 +169,8 @@ export default function BossManager({
 		} catch (err) {
 			console.error('Error saving boss:', err);
 			alert('Failed to save boss');
+		} finally {
+			setIsSubmitting(false);
 		}
 	};
 
@@ -173,6 +184,14 @@ export default function BossManager({
 		);
 
 		if (!confirmed) return;
+
+		// Prevent double submission
+		if (isDeleting) {
+			console.log('Already submitting, please wait...');
+			return;
+		}
+
+		setIsDeleting(true);
 
 		try {
 			const deletedBoss = await deleteBossToCharacter(userId, characterId, boss.id)
@@ -194,6 +213,8 @@ export default function BossManager({
 		} catch (err) {
 			console.error('Error deleting boss:', err);
 			alert('Failed to delete boss');
+		} finally {
+			setIsDeleting(false);
 		}
 	};
 
@@ -439,18 +460,41 @@ export default function BossManager({
 							<div className="flex gap-3">
 								<button
 									onClick={handleSaveBoss}
-									disabled={!selectedBoss || !selectedDifficulty || !selectedPartySize}
-									className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition-colors"
+									disabled={!selectedBoss || !selectedDifficulty || !selectedPartySize || isSubmitting}
+									className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
 								>
-									{isEditing ? 'Save Changes' : 'Add Boss'}
+									{isSubmitting ? (
+										<span className="flex items-center justify-center gap-2">
+											<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+												<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+												<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+											</svg>
+											{isEditing ? 'Saving...' : 'Adding...'}
+										</span>
+									) : (
+										isEditing ? 'Save Changes' : 'Add Boss'
+									)}
 								</button>
 								{isEditing && (
 									<button
 										onClick={handleDeleteBoss}
-										className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-lg transition-colors"
+										disabled={isDeleting}
+										className="flex-1 bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
 									>
-										Delete Boss
+
+										{isDeleting ? (
+											<span className="flex items-center justify-center gap-2">
+												<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+													<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+													<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+												</svg>
+												Deleting boss...
+											</span>
+										) : (
+											'Delete Boss'
+										)}
 									</button>
+
 								)}
 								<button
 									onClick={closeModal}

@@ -8,12 +8,8 @@ import { getUserCharacters, getUserCharacter } from '../api/trackerService';
 
 const Tracker = () => {
     const { user, userId, loading } = useContext(AuthContext);
-    const [displayedMeso, setDisplayedMeso] = useState([]);
     const [displayedCharacter, setDisplayedCharacter] = useState([]);
-    const [displayedCharacterMeso, setDisplayedCharacterMeso] = useState(0);
     const [userCharacters, setUserCharacters] = useState([]);
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [loadingMesos, setLoadingMesos] = useState(false);
 
     //handles bg change
     useEffect(() => {
@@ -26,7 +22,6 @@ const Tracker = () => {
         };
     }, []); // Empty dependency array ensures this runs only once on mount and unmount
 
-    //pie chart updates
     //we need to set another useeffect to get the usercharacters and wait to load site
     useEffect(() => {
         if (!userId) return;
@@ -35,14 +30,6 @@ const Tracker = () => {
             try {
                 const charactersResponse = await getUserCharacters(userId);
                 setUserCharacters(charactersResponse);
-
-                charactersResponse?.forEach((character) => {
-                    try {
-                        setDisplayedMeso((displayedMeso) => [...displayedMeso, character.characterMeso]);
-                    } catch (error) {
-                        console.error(error);
-                    }
-                });
             } catch (error) {
                 console.error(error);
             }
