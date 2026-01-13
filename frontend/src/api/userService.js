@@ -1,9 +1,10 @@
 import axios from "axios";
 
-const SIGNUP_URL = "http://localhost:8080/signup";
-const LOGIN_URL = "http://localhost:8080/login";
-const USERINFO_URL = "http://localhost:8080/userInfo";
-const FORGOT_PASSWORD_URL = "http://localhost:8080/auth/forgot-password";
+const BASE_URL = "https://maplestory-weekly-bossing-tracker.onrender.com/"
+const SIGNUP_URL = BASE_URL + "signup";
+const LOGIN_URL = BASE_URL + "login";
+const USERINFO_URL = BASE_URL + "userInfo";
+const FORGOT_PASSWORD_URL = BASE_URL + "auth/forgot-password";
 
 const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
