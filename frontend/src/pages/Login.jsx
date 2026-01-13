@@ -17,7 +17,7 @@ const Login = () => {
         const result = await login(username, password);
 
         if (result.success) {
-        // Navigate only after auth context is fully loaded
+            // Navigate only after auth context is fully loaded
             navigate('/tracker');
         } else {
             setError(result.error || 'Login failed');
@@ -60,13 +60,15 @@ const Login = () => {
                     </button>
                 </form>
                 <p className="mt-4 text-center text-gray-600">
-                    Don't have an account? <a href="/signup" className="text-blue-600 hover:underline">Register</a>
+                    <Link to="/signup" className="text-blue-600 hover:underline">
+                        Don't have an account?
+                    </Link>
                 </p>
                 <p className="mt-2 text-sm text-center text-gray-600">
-                        Forgot your password?{" "}
-                        <Link to="/forgot-password" className="text-blue-600 hover:underline">
-                            Reset here
-                        </Link>
+                    Forgot your password?{" "}
+                    <Link to="/forgot-password" className="text-blue-600 hover:underline">
+                        Reset here
+                    </Link>
                 </p>
             </div>
         </div>
