@@ -30,11 +30,16 @@ export default function BossManager({
 		setBossSlots(slots);
 	}, [weeklyBosses]);
 
+	const bossImages = import.meta.glob(
+		'/src/assets/boss_profiles/*.png',
+		{ eager: true, import: 'default' }
+	);
+
 	const getBossImagePath = (bossName) => {
-		// Convert "Chaos Vellum" to "chaos-vellum"
 		const filename = bossName.toLowerCase().replace(/\s+/g, '_');
-		return `/src/assets/boss profiles/${filename}.png`;
+		return bossImages[`/src/assets/boss_profiles/${filename}.png`];
 	};
+
 
 	const changeToBackendName = (bossName, difficulty) => {
 		const boss_name = bossName.toUpperCase().replace(/\s+/g, '_');
@@ -355,7 +360,7 @@ export default function BossManager({
 											>
 												<div className="w-full h-30 bg-orange-300 rounded mb-2 flex items-center justify-center">
 													<img
-														src={getBossImagePath(bossName)}
+														src={require(getBossImagePath(bossName))}
 														alt={bossName}
 														className="w-full h-full object-cover rounded"
 														onError={(e) => {
