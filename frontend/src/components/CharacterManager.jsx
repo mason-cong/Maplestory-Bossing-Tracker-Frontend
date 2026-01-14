@@ -2,6 +2,7 @@ import { useState } from 'react';
 import defaultCharacter from '../assets/default-character.png';
 import { createNewUserCharacters, updateUserCharacter, deleteUserCharacter } from '../api/trackerService';
 import { CHARACTER_CLASSES_BY_TYPE } from '../assets/characterClasses';
+import toast from 'react-hot-toast'
 
 export default function CharacterManager({
     userId,
@@ -43,14 +44,16 @@ export default function CharacterManager({
     const handleSubmitCharacter = async () => {
         // Validation
         if (!newCharacter.characterName || !newCharacter.characterClass || !newCharacter.characterLevel) {
-            alert('Please fill in all fields');
+            toast.error('Please fill in all fields');
             return;
         }
 
         if (newCharacter.characterLevel > 300 || newCharacter.characterLevel <= 0) {
-            alert('Please enter a valid character level');
+            toast.error('Please enter a valid character level');
             return;
         }
+
+        const loadingToast = toast.loading('Creating character...');
 
         try {
             const createdCharacter = await createNewUserCharacters(userId, newCharacter);
@@ -63,10 +66,14 @@ export default function CharacterManager({
             setNewCharacter({ characterName: '', characterClass: '', characterLevel: '' });
             setShowCreateForm(false);
 
-            alert('Character created successfully!');
+            toast.success('Character created successfully!', {
+                id: loadingToast
+            });
         } catch (err) {
             console.error('Error creating character:', err);
-            alert('Failed to create character');
+            toast.error('Failed to create character', {
+                id: loadingToast
+            });
         }
     };
 
@@ -77,7 +84,7 @@ export default function CharacterManager({
 
     const handleEditCharacter = () => {
         if (!displayedCharacter) {
-            alert('No character selected to edit');
+            toast.error('No character selected to edit');
             return;
         }
         // Pre-fill edit form with current character data
@@ -99,14 +106,16 @@ export default function CharacterManager({
 
     const handleSubmitEdit = async () => {
         if (!editCharacter.characterName || !editCharacter.characterClass || !editCharacter.characterLevel) {
-            alert('Please fill in all fields');
+            toast.error('Please fill in all fields');
             return;
         }
 
         if (editCharacter.characterLevel > 300 || editCharacter.characterLevel <= 0) {
-            alert('Please enter a valid character level');
+            toast.error('Please enter a valid character level');
             return;
         }
+
+        const loadingToast = toast.loading("Updating character...")
 
         try {
             const updatedCharacter = await updateUserCharacter(userId, displayedCharacter.id, editCharacter)
@@ -119,10 +128,14 @@ export default function CharacterManager({
 
             setEditCharacter({ characterName: '', characterClass: '', characterLevel: '' });
             setShowEditForm(false);
-            alert('Character updated successfully!');
+            toast.success('Character updated successfully!', {
+                id: loadingToast
+            });
         } catch (err) {
             console.error('Error updating character:', err);
-            alert('Failed to update character');
+            toast.error('Failed to update character', {
+                id: loadingToast
+            });
         }
     };
 
@@ -133,13 +146,14 @@ export default function CharacterManager({
 
     const handleDeleteCharacter = () => {
         if (!displayedCharacter) {
-            alert('No character selected to delete');
+            toast.error('No character selected to delete');
             return;
         }
         setShowDeleteConfirm(true);
     };
 
     const confirmDelete = async () => {
+        const loadingToast = toast.loading('Deleting character...')
         try {
             const deletedCharacter = await deleteUserCharacter(userId, displayedCharacter.id);
 
@@ -155,10 +169,14 @@ export default function CharacterManager({
             }
 
             setShowDeleteConfirm(false);
-            alert('Character deleted successfully!');
+            toast.success('Character deleted successfully!', {
+                id: loadingToast
+            });
         } catch (err) {
             console.error('Error deleting character:', err);
-            alert('Failed to delete character');
+            toast.error('Failed to delete character', {
+                id: loadingToast
+            });
         }
     };
 

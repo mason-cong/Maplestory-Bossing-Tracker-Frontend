@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { availableBosses } from './availableBosses';
 import { getDifficultyBanner } from './difficultyBanners';
 import { addBossToCharacter, updateBossToCharacter, deleteBossToCharacter } from '../api/trackerService';
+import toast from 'react-hot-toast';
 
 export default function BossManager({
 	userId,
@@ -116,16 +117,17 @@ export default function BossManager({
 	// Save boss to slot
 	const handleSaveBoss = async () => {
 		if (!selectedBoss || !selectedDifficulty || !selectedPartySize) {
-			alert('Please select boss, difficulty, and party size');
+			toast.error('Please select boss, difficulty, and party size');
 			return;
 		}
 
 		// Prevent double submission
 		if (isSubmitting) {
-			console.log('Already submitting, please wait...');
 			return;
 		}
 		setIsSubmitting(true);
+
+		const loadingToast = toast.loading(isEditing ? 'Updating boss...' : 'Adding boss...');
 
 		try {
 			if (isEditing) {
@@ -165,10 +167,14 @@ export default function BossManager({
 
 			// Reset and close
 			closeModal();
-			alert(isEditing ? 'Boss updated successfully!' : 'Boss added successfully!');
+			toast.success(isEditing ? 'Boss updated successfully!' : 'Boss added successfully!', {
+				id: loadingToast,
+			});
 		} catch (err) {
 			console.error('Error saving boss:', err);
-			alert('Failed to save boss');
+			toast.error('Failed to save boss', {
+				id: loadingToast
+			});
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -193,6 +199,8 @@ export default function BossManager({
 
 		setIsDeleting(true);
 
+		const loadingToast = toast.loading('Deleting boss...');
+
 		try {
 			const deletedBoss = await deleteBossToCharacter(userId, characterId, boss.id)
 
@@ -209,10 +217,14 @@ export default function BossManager({
 			}
 
 			closeModal();
-			alert('Boss removed successfully!');
+			toast.success('Boss removed successfully!',{
+				id: loadingToast
+			});
 		} catch (err) {
 			console.error('Error deleting boss:', err);
-			alert('Failed to delete boss');
+			toast.error('Failed to delete boss', {
+				id: loadingToast
+			});
 		} finally {
 			setIsDeleting(false);
 		}

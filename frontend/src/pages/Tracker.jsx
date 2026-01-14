@@ -5,6 +5,7 @@ import CharacterManager from '../components/CharacterManager.jsx';
 import BossManager from '../components/BossManager.jsx';
 import MesoChart from '../components/MesoChart.jsx';
 import { getUserCharacters, getUserCharacter } from '../api/trackerService';
+import { Toaster } from 'react-hot-toast';
 
 const Tracker = () => {
     const { user, userId, loading } = useContext(AuthContext);
@@ -67,6 +68,7 @@ const Tracker = () => {
 
     return (
         <div className="flex-grow flex flex-wrap gap-1 p-4 mt-10 justify-center w-full">
+            <Toaster />
             <div className="flex flex-col gap-2 lg:w-[46rem]">
                 <div className="flex flex-row p-5 border rounded-lg border-orange-100 bg-orange-300 w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto shadow-md">
                     <CharacterManager
