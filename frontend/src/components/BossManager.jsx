@@ -217,7 +217,7 @@ export default function BossManager({
 			}
 
 			closeModal();
-			toast.success('Boss removed successfully!',{
+			toast.success('Boss removed successfully!', {
 				id: loadingToast
 			});
 		} catch (err) {
@@ -373,41 +373,44 @@ export default function BossManager({
 
 
 							{/* Boss Selection Grid */}
-							<div className="mb-6">
-								<h3 className="text-lg font-semibold mb-3">Select Boss</h3>
-								<div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
-									{filteredBosses.map((bossName) => {
-										const isAlreadyAdded = addedBossNames.includes(bossName) &&
-											(!isEditing || bossName !== selectedBoss);
-										return (
-											<button
-												key={bossName}
-												onClick={() => !isAlreadyAdded && handleSelectBoss(bossName)}
-												disabled={isAlreadyAdded}
-												className={`p-4 rounded-lg border-2 transition-all ${selectedBoss === bossName
-													? 'border-orange-600 bg-orange-100'
-													: isAlreadyAdded
-														? 'border-gray-200 bg-gray-200 opacity-25 cursor-not-allowed'
-														: 'border-gray-100 hover:border-gray-300'
-													}`}
-											>
-												<div className="w-full h-30 bg-orange-300 rounded mb-2 flex items-center justify-center">
-													<img
-														src={getBossImagePath(bossName)}
-														alt={bossName}
-														className="w-full h-full object-cover rounded"
-														onError={(e) => {
-															// Fallback if image doesn't exist
-															e.target.src = '/images/bosses/default.png';
-															// Or hide image and show text
-															// e.target.style.display = 'none';
-														}}
-													/>
-												</div>
-												<p className="font-semibold text-center text-sm">{bossName}</p>
-											</button>
-										);
-									})}
+							<div className="flex gap-6 mb-6">
+								<div className="flex-1 overflow-y-auto max-h-96">
+									<h3 className="text-lg font-semibold mb-3">Select Boss</h3>
+									<div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
+										{filteredBosses.map((bossName) => {
+											const isAlreadyAdded = addedBossNames.includes(bossName) &&
+												(!isEditing || bossName !== selectedBoss);
+											return (
+												<button
+													key={bossName}
+													onClick={() => !isAlreadyAdded && handleSelectBoss(bossName)}
+													disabled={isAlreadyAdded}
+													className={`p-4 rounded-lg border-2 transition-all flex flex-col justify-start ${selectedBoss === bossName
+														? 'border-orange-600 bg-orange-100'
+														: isAlreadyAdded
+															? 'border-gray-200 bg-gray-200 opacity-25 cursor-not-allowed'
+															: 'border-gray-100 hover:border-gray-300'
+														}`}
+												>
+													<div className="w-full h-30 bg-orange-300 rounded mb-2 items-center">
+														<img
+															src={getBossImagePath(bossName)}
+															alt={bossName}
+															className="w-full h-full object-cover rounded"
+															onError={(e) => {
+																// Fallback if image doesn't exist
+																e.target.src = '/images/bosses/default.png';
+																// Or hide image and show text
+																// e.target.style.display = 'none';
+															}}
+														/>
+													</div>
+													<p className="font-semibold text-center text-sm">{bossName}</p>
+												</button>
+
+											);
+										})}
+									</div>
 								</div>
 								{/* No results message */}
 								{filteredBosses.length === 0 && (
@@ -421,99 +424,101 @@ export default function BossManager({
 										</button>
 									</div>
 								)}
-							</div>
+								<div className="w-80 bg-gray-50 p-4 rounded-lg">
+									{selectedBoss ? (
+										<>
+											<h4 className="font-semibold mb-3">Selected: {selectedBoss}</h4>
 
-							{/* Difficulty Selection */}
-							{selectedBoss && (
-								<div className="mb-6">
-									<h3 className="text-lg font-semibold mb-3">Select Difficulty</h3>
-									<div className="flex flex-wrap gap-2">
-										{Object.keys(availableBosses[selectedBoss]).map((difficulty) => (
-											<button
-												key={difficulty}
-												onClick={() => {
-													setSelectedDifficulty(difficulty);
-													setSelectedPartySize('');
-												}}
-												className={`px-4 py-2 rounded-lg font-semibold transition-colors ${selectedDifficulty === difficulty
-													? 'bg-orange-500 text-white'
-													: 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-													}`}
-											>
-												{difficulty}
-											</button>
-										))}
-									</div>
-								</div>
-							)}
+											{/* Difficulty */}
+											<div className="mb-4">
+												<label className="text-sm font-semibold mb-2 block">Difficulty</label>
+												<div className="space-y-2 space-x-1">
+													{Object.keys(availableBosses[selectedBoss]).map((difficulty) => (
+														<button
+															key={difficulty}
+															onClick={() => setSelectedDifficulty(difficulty)}
+															className={`px-4 py-2 rounded-lg ${selectedDifficulty === difficulty
+																? 'bg-orange-500 text-white'
+																: 'bg-white border hover:bg-gray-300 text-gray-800'
+																}`}
+														>
+															{difficulty}
+														</button>
+													))}
+												</div>
+											</div>
 
-							{/* Party Size Selection */}
-							{selectedDifficulty && (
-								<div className="mb-6">
-									<h3 className="text-lg font-semibold mb-3">Select Party Size</h3>
-									<div className="flex flex-wrap gap-2">
-										{availablePartySizes.map((size) => (
-											<button
-												key={size}
-												onClick={() => setSelectedPartySize(size.toString())}
-												className={`px-4 py-2 rounded-lg font-semibold transition-colors ${selectedPartySize === size.toString()
-													? 'bg-orange-500 text-white'
-													: 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-													}`}
-											>
-												{size}
-											</button>
-										))}
-									</div>
-								</div>
-							)}
+											{/* Party Size */}
+											{selectedDifficulty && (
+												<div className="mb-4">
+													<label className="text-sm font-semibold mb-2 block">Party Size</label>
+													<div className="grid grid-cols-3 gap-2">
+														{availablePartySizes.map((size) => (
+															<button
+																key={size}
+																onClick={() => setSelectedPartySize(size.toString())}
+																className={`px-3 py-2 rounded-lg ${selectedPartySize === size.toString()
+																	? 'bg-orange-500 text-white'
+																	: 'bg-white border hover:bg-gray-300 text-gray-800'
+																	}`}
+															>
+																{size}
+															</button>
+														))}
+													</div>
+												</div>
+											)}
+											<div className="flex gap-3">
+												<button
+													onClick={handleSaveBoss}
+													disabled={!selectedBoss || !selectedDifficulty || !selectedPartySize || isSubmitting}
+													className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
+												>
+													{isSubmitting ? (
+														<span className="flex items-center justify-center gap-2">
+															<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+																<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+																<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+															</svg>
+															{isEditing ? 'Saving...' : 'Adding...'}
+														</span>
+													) : (
+														isEditing ? 'Save Changes' : 'Add Boss'
+													)}
+												</button>
+												{isEditing && (
+													<button
+														onClick={handleDeleteBoss}
+														disabled={isDeleting}
+														className="flex-1 bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
+													>
 
-							{/* Action Buttons */}
-							<div className="flex gap-3">
-								<button
-									onClick={handleSaveBoss}
-									disabled={!selectedBoss || !selectedDifficulty || !selectedPartySize || isSubmitting}
-									className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
-								>
-									{isSubmitting ? (
-										<span className="flex items-center justify-center gap-2">
-											<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-												<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-												<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-											</svg>
-											{isEditing ? 'Saving...' : 'Adding...'}
-										</span>
+														{isDeleting ? (
+															<span className="flex items-center justify-center gap-2">
+																<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+																	<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+																	<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+																</svg>
+																Deleting boss...
+															</span>
+														) : (
+															'Delete Boss'
+														)}
+													</button>
+
+												)}
+												<button
+													onClick={closeModal}
+													className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 rounded-lg transition-colors"
+												>
+													Cancel
+												</button>
+											</div>
+										</>
 									) : (
-										isEditing ? 'Save Changes' : 'Add Boss'
+										<p className="text-black text-center">Select a boss to begin</p>
 									)}
-								</button>
-								{isEditing && (
-									<button
-										onClick={handleDeleteBoss}
-										disabled={isDeleting}
-										className="flex-1 bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
-									>
-
-										{isDeleting ? (
-											<span className="flex items-center justify-center gap-2">
-												<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-													<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-													<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-												</svg>
-												Deleting boss...
-											</span>
-										) : (
-											'Delete Boss'
-										)}
-									</button>
-
-								)}
-								<button
-									onClick={closeModal}
-									className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 rounded-lg transition-colors"
-								>
-									Cancel
-								</button>
+								</div>
 							</div>
 						</div>
 					</div>
