@@ -77,6 +77,7 @@ const Tracker = () => {
                         setUserCharacters={setUserCharacters}
                         displayedCharacter={displayedCharacter}
                         setDisplayedCharacter={setDisplayedCharacter}
+                        onCharacterRefetch={refetchCharacter}
                     />
                 </div>
   

@@ -1,7 +1,8 @@
 import axios from "axios";
 
+const BASE_URL2 = "http://localhost:8080/"
 const BASE_URL = "https://maplestory-weekly-bossing-tracker.onrender.com/"
-const API_URL = BASE_URL + "weekly-characters";
+const API_URL = BASE_URL2 + "weekly-characters";
 
 const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
@@ -76,6 +77,16 @@ export const getBossesFromCharacter = async (userID, charID) => {
     }
 };
 
+export const copyBossesToCharacter = async (userID, charID, charData) => {
+    try {
+        const response = await axios.post(`${API_URL}/${userID}/${charID}/bosses/duplicate`, charData, {
+            headers: getAuthHeaders(),
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.msg || "Failed to copy bosses";
+    }
+};
 
 export const addBossToCharacter = async (userID, charID, bossData) => {
     try {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import defaultCharacter from '../assets/default-character.png';
-import { createNewUserCharacters, updateUserCharacter, deleteUserCharacter } from '../api/trackerService';
+import { createNewUserCharacters, updateUserCharacter, deleteUserCharacter, copyBossesToCharacter } from '../api/trackerService';
 import { CHARACTER_CLASSES_BY_TYPE } from '../assets/characterClasses';
 import toast from 'react-hot-toast'
 
@@ -9,8 +9,10 @@ export default function CharacterManager({
     userCharacters,
     setUserCharacters,
     displayedCharacter,
-    setDisplayedCharacter
+    setDisplayedCharacter,
+    onCharacterRefetch
 }) {
+
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [newCharacter, setNewCharacter] = useState({
@@ -25,6 +27,9 @@ export default function CharacterManager({
         characterClass: '',
         characterLevel: ''
     });
+
+    const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+    const [sourceCharacter, setSourceCharacter] = useState(null);
 
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -182,6 +187,57 @@ export default function CharacterManager({
 
     const cancelDelete = () => {
         setShowDeleteConfirm(false);
+    };
+
+    const handleDuplicateBosses = () => {
+        setSourceCharacter(displayedCharacter);
+        setShowDuplicateModal(true);
+    };
+
+    const handleCopyBosses = async (targetCharacter) => {
+        const loadingToast = toast.loading(`Copying bosses to ${targetCharacter.characterName}...`);
+
+        try {
+            // Get source character's bosses
+            const bossesToCopy = sourceCharacter.weeklyBosses;
+
+            if (!bossesToCopy || bossesToCopy.length === 0) {
+                toast.error('No bosses to copy', { id: loadingToast });
+                return;
+            }
+
+            const response = await copyBossesToCharacter(userId, targetCharacter.id,
+                {
+                    weeklyCharacterId: sourceCharacter.id,
+                    replace: true
+                });
+
+            // Refetch the target character to get latest bosses
+            if (onCharacterRefetch) {
+                await onCharacterRefetch();
+            }
+
+            setUserCharacters(prev =>
+                prev.map(char =>
+                    char.id === targetCharacter.id
+                        ? { ...char, ...response }
+                        : char
+                )
+            );
+
+            setDisplayedCharacter(response);
+
+            toast.success(`${bossesToCopy.length} bosses copied to ${targetCharacter.characterName}!`, {
+                id: loadingToast
+            });
+
+            setShowDuplicateModal(false);
+            setSourceCharacter(null);
+
+        } catch (err) {
+            console.error('Error copying bosses:', err);
+            toast.error('Failed to copy bosses', { id: loadingToast });
+        }
     };
 
     return (
@@ -353,11 +409,36 @@ export default function CharacterManager({
             ) : (
 
                 // Character Display Card
-                <div className="flex flex-row p-5 border rounded-lg border-orange-300 bg-orange-300 w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto">
+                <div className="flex flex-row p-3 border rounded-lg border-orange-300 bg-orange-300 w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto">
                     <div className="min-h-20 w-1/3 lg:min-w-28 flex items-center justify-center">
                         <img src={defaultCharacter} className="h-auto w-full max-w-32" alt="Character" />
                     </div>
                     <div className="p-3 flex flex-col items-center w-full">
+                        <div className="flex w-full mb-2 gap-3 justify-end">
+                            {/*Character editing buttons*/}
+                            {displayedCharacter && displayedCharacter.weeklyBosses?.length > 0 && (
+                                <button
+                                    onClick={() => {
+                                        handleDuplicateBosses();
+                                        setIsDropdownOpen(false);
+                                    }}
+                                    className="text-left px-3 py-1 text-black rounded bg-white hover:bg-orange-50 transition-colors flex items-center gap-2"
+                                >
+                                    <span className="text-xl">📋</span>
+                                    Duplicate Bosses
+                                </button>
+                            )}
+                            <button
+                                className="bg-green-500 text-white px-3 rounded hover:bg-green-600 transition-colors shadow-lg"
+                                onClick={handleEditCharacter}>
+                                Edit
+                            </button>
+                            <button
+                                className="bg-red-400 text-white px-3 rounded hover:bg-red-600 transition-colors shadow-lg"
+                                onClick={handleDeleteCharacter}>
+                                Delete
+                            </button>
+                        </div>
                         <div className="my-3 flex flex-row justify-between w-full items-center text-lg">
                             {/* Character Name Dropdown */}
                             <div className="relative flex-1 mr-3">
@@ -411,19 +492,6 @@ export default function CharacterManager({
                                     </div>
                                 )}
                             </div>
-                            <div className="flex gap-2">
-                                <button
-                                    className="bg-orange-100 text-black px-3 rounded hover:bg-orange-200 transition-colors"
-                                    onClick={handleEditCharacter}>
-                                    Edit
-                                </button>
-                                <button
-                                    className="bg-red-200 text-black px-3 rounded hover:bg-red-400 transition-colors"
-                                    onClick={handleDeleteCharacter}>
-                                    Delete
-                                </button>
-                            </div>
-
                         </div>
                         <div className="flex flex-col w-full gap-3">
                             <div className="flex flex-row text-lg items-center justify-between w-full">
@@ -443,9 +511,65 @@ export default function CharacterManager({
                 </div>
             )}
 
+            {/* Duplicate Modal */}
+            {showDuplicateModal && (
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                            Duplicate Boss List
+                        </h2>
+                        <div className="mb-6">
+                            <p className="text-gray-600 mb-2">
+                                Copy bosses from <strong>{sourceCharacter?.characterName}</strong> to:
+                            </p>
+                            <p className="text-sm text-gray-500">
+                                ({sourceCharacter?.weeklyBosses?.length || 0} bosses will be copied)
+                            </p>
+                        </div>
+
+                        {/* Target Character Selection */}
+                        <div className="space-y-2 max-h-96 overflow-y-auto mb-6">
+                            {userCharacters
+                                .filter(char => char.id !== sourceCharacter?.id)
+                                .map((character) => (
+                                    <button
+                                        key={character.id}
+                                        onClick={() => handleCopyBosses(character)}
+                                        className="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all text-left"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="font-semibold text-gray-800">{character.characterName}</p>
+                                                <p className="text-sm text-gray-600">
+                                                    Level {character.characterLevel} • {character.characterClass}
+                                                </p>
+                                                <p className="text-xs text-gray-500">
+                                                    Current bosses: {character.weeklyBosses?.length || 0}
+                                                </p>
+                                            </div>
+                                            <span className="text-2xl">→</span>
+                                        </div>
+                                    </button>
+                                ))}
+                        </div>
+
+                        {/* Cancel Button */}
+                        <button
+                            onClick={() => {
+                                setShowDuplicateModal(false);
+                                setSourceCharacter(null);
+                            }}
+                            className="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 rounded-lg transition-colors"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/*Character delete confirmation*/}
             {showDeleteConfirm && (
-                <div className="fixed inset-0 bg-opacity-0 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-xl max-w-md">
                         <h3 className="text-xl font-bold text-gray-800 mb-4">Delete Character?</h3>
                         <p className="text-gray-600 mb-6">

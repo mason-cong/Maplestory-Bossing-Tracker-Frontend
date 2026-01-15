@@ -9,7 +9,8 @@ export default function BossManager({
 	characterId,
 	weeklyBosses = [],
 	onBossesUpdate,
-	onCharacterRefetch }) {
+	onCharacterRefetch
+}) {
 
 	const [bossSlots, setBossSlots] = useState([]);
 	const [showBossModal, setShowBossModal] = useState(false);
@@ -490,7 +491,7 @@ export default function BossManager({
 													<button
 														onClick={handleDeleteBoss}
 														disabled={isDeleting}
-														className="flex-1 bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
+														className="flex-1 bg-red-400 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
 													>
 
 														{isDeleting ? (
