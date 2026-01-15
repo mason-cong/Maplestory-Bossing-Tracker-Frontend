@@ -1,8 +1,8 @@
 import axios from "axios";
 
-const BASE_URL2 = "http://localhost:8080/"
+const TEST_URL = "http://localhost:8080/"
 const BASE_URL = "https://maplestory-weekly-bossing-tracker.onrender.com/"
-const API_URL = BASE_URL2 + "weekly-characters";
+const API_URL = BASE_URL + "weekly-characters";
 
 const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
