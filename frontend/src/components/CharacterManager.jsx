@@ -517,7 +517,7 @@ export default function CharacterManager({
                                         )}
                                     </div>
                                 )}
-                                <div className="flex w-full mb-2 gap-3 justify-end">
+                                <div className="flex mb-2 gap-3 justify-end">
                                     {/*Character editing buttons*/}
                                     {displayedCharacter && displayedCharacter.weeklyBosses?.length > 0 && (
                                         <button
