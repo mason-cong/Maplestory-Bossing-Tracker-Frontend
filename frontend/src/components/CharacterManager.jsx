@@ -466,31 +466,31 @@ export default function CharacterManager({
                                         )}
                                     </div>
                                 )}
-                            </div>
-                            <div className="flex w-full mb-2 gap-3 justify-end">
-                                {/*Character editing buttons*/}
-                                {displayedCharacter && displayedCharacter.weeklyBosses?.length > 0 && (
+                                <div className="flex w-full mb-2 gap-3 justify-end">
+                                    {/*Character editing buttons*/}
+                                    {displayedCharacter && displayedCharacter.weeklyBosses?.length > 0 && (
+                                        <button
+                                            onClick={() => {
+                                                handleDuplicateBosses();
+                                                setIsDropdownOpen(false);
+                                            }}
+                                            className="text-left px-3 py-1 text-black rounded bg-white hover:bg-orange-50 transition-colors flex items-center gap-2"
+                                        >
+                                            <span className="text-xl">📋</span>
+                                            Duplicate Bosses
+                                        </button>
+                                    )}
                                     <button
-                                        onClick={() => {
-                                            handleDuplicateBosses();
-                                            setIsDropdownOpen(false);
-                                        }}
-                                        className="text-left px-3 py-1 text-black rounded bg-white hover:bg-orange-50 transition-colors flex items-center gap-2"
-                                    >
-                                        <span className="text-xl">📋</span>
-                                        Duplicate Bosses
+                                        className="bg-green-500 text-white px-3 rounded hover:bg-green-600 transition-colors shadow-lg"
+                                        onClick={handleEditCharacter}>
+                                        Edit
                                     </button>
-                                )}
-                                <button
-                                    className="bg-green-500 text-white px-3 rounded hover:bg-green-600 transition-colors shadow-lg"
-                                    onClick={handleEditCharacter}>
-                                    Edit
-                                </button>
-                                <button
-                                    className="bg-red-400 text-white px-3 rounded hover:bg-red-600 transition-colors shadow-lg"
-                                    onClick={handleDeleteCharacter}>
-                                    Delete
-                                </button>
+                                    <button
+                                        className="bg-red-400 text-white px-3 rounded hover:bg-red-600 transition-colors shadow-lg"
+                                        onClick={handleDeleteCharacter}>
+                                        Delete
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div className="flex flex-col w-full gap-3">
