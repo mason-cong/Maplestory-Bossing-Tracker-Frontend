@@ -32,6 +32,10 @@ export default function CharacterManager({
     const [sourceCharacter, setSourceCharacter] = useState(null);
 
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isDuplicating, setIsDuplicating] = useState(false);
 
     const handleCreateCharacter = () => {
         setShowCreateForm(true);
@@ -58,6 +62,11 @@ export default function CharacterManager({
             return;
         }
 
+        if (isSubmitting) {
+            return;
+        }
+        setIsSubmitting(true);
+
         const loadingToast = toast.loading('Creating character...');
 
         try {
@@ -79,6 +88,8 @@ export default function CharacterManager({
             toast.error('Failed to create character', {
                 id: loadingToast
             });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -121,7 +132,10 @@ export default function CharacterManager({
         }
 
         const loadingToast = toast.loading("Updating character...")
-
+        if (isEditing) {
+			return;
+		}
+		setIsEditing(true);
         try {
             const updatedCharacter = await updateUserCharacter(userId, displayedCharacter.id, editCharacter)
 
@@ -141,7 +155,9 @@ export default function CharacterManager({
             toast.error('Failed to update character', {
                 id: loadingToast
             });
-        }
+        } finally {
+			setIsEditing(false);
+		}
     };
 
     const handleCancelEdit = () => {
@@ -159,6 +175,11 @@ export default function CharacterManager({
 
     const confirmDelete = async () => {
         const loadingToast = toast.loading('Deleting character...')
+        if (isDeleting) {
+            return;
+        }
+        setIsDeleting(true);
+
         try {
             const deletedCharacter = await deleteUserCharacter(userId, displayedCharacter.id);
 
@@ -182,6 +203,8 @@ export default function CharacterManager({
             toast.error('Failed to delete character', {
                 id: loadingToast
             });
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -197,6 +220,10 @@ export default function CharacterManager({
     const handleCopyBosses = async (targetCharacter) => {
         const loadingToast = toast.loading(`Copying bosses to ${targetCharacter.characterName}...`);
 
+        if (isDuplicating) {
+			return;
+		}
+		setIsDuplicating(true);
         try {
             // Get source character's bosses
             const bossesToCopy = sourceCharacter.weeklyBosses;
@@ -237,7 +264,9 @@ export default function CharacterManager({
         } catch (err) {
             console.error('Error copying bosses:', err);
             toast.error('Failed to copy bosses', { id: loadingToast });
-        }
+        } finally {
+			setIsDuplicating(false);
+		}
     };
 
     return (
@@ -311,9 +340,20 @@ export default function CharacterManager({
                         <div className="flex gap-3 pt-4">
                             <button
                                 onClick={handleSubmitCharacter}
-                                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                                disabled={isSubmitting}
+                                className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
                             >
-                                Create Character
+                                {isSubmitting ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Creating character...
+                                    </span>
+                                ) : (
+                                    'Create Character'
+                                )}
                             </button>
                             <button
                                 onClick={handleCancelCreate}
@@ -393,9 +433,20 @@ export default function CharacterManager({
                         <div className="flex gap-3 pt-4">
                             <button
                                 onClick={handleSubmitEdit}
-                                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                                disabled={isEditing}
+                                className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
                             >
-                                Edit Character
+                                {isEditing ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Editing character...
+                                    </span>
+                                ) : (
+                                    'Edit Character'
+                                )}
                             </button>
                             <button
                                 onClick={handleCancelEdit}
@@ -416,7 +467,7 @@ export default function CharacterManager({
                     <div className="p-3 flex flex-col items-center w-full">
                         <div className="my-3 flex flex-row justify-between w-full items-center text-lg">
                             {/* Character Name Dropdown */}
-                            <div className="relative flex-1 mr-3">
+                            <div className="relative flex w-full">
                                 <button
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                     className="flex items-center gap-2 hover:text-orange-700 transition-colors"
@@ -535,6 +586,7 @@ export default function CharacterManager({
                                     <button
                                         key={character.id}
                                         onClick={() => handleCopyBosses(character)}
+                                        disabled={isDuplicating}
                                         className="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all text-left"
                                     >
                                         <div className="flex items-center justify-between">
@@ -578,9 +630,20 @@ export default function CharacterManager({
                         <div className="flex gap-3">
                             <button
                                 onClick={confirmDelete}
+                                disabled={isDeleting}
                                 className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
                             >
-                                Delete
+                                {isDeleting ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Deleting boss...
+                                    </span>
+                                ) : (
+                                    'Delete'
+                                )}
                             </button>
                             <button
                                 onClick={cancelDelete}
