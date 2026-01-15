@@ -470,7 +470,7 @@ export default function CharacterManager({
                             <div className="relative flex w-full">
                                 <button
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                    className="flex items-center gap-2 hover:text-orange-700 transition-colors"
+                                    className="flex flex-grow items-center gap-2 hover:text-orange-700 transition-colors"
                                 >
                                     <span className="font-semibold">
                                         {displayedCharacter?.characterName || 'Select Character'}

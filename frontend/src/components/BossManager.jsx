@@ -194,7 +194,6 @@ export default function BossManager({
 
 		// Prevent double submission
 		if (isDeleting) {
-			console.log('Already submitting, please wait...');
 			return;
 		}
 
@@ -493,7 +492,6 @@ export default function BossManager({
 														disabled={isDeleting}
 														className="flex-1 bg-red-400 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
 													>
-
 														{isDeleting ? (
 															<span className="flex items-center justify-center gap-2">
 																<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
