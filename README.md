@@ -2,7 +2,7 @@
 This web app allows the user to track and calculate their total weekly mesos in the Korean MMORPG Maplestory.
 
 **Link to project:** https://maplestory-bossing-tracker.onrender.com
-![Tracker Page](example.png)
+<img width="1914" height="906" alt="tracker-screen" src="https://github.com/user-attachments/assets/9a86320b-e461-4d98-90d7-731de64251fb" />
 
 ## How It's Made:
 
