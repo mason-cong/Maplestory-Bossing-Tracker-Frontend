@@ -11,7 +11,7 @@ export default function MesoChart({
     const charactersWithMesos = userCharacters.filter(char => char.characterMeso > 0);
 
     const totalMesos = charactersWithMesos.reduce((sum, char) => sum + char.characterMeso, 0);
-    
+
     const totalBosses = charactersWithMesos.reduce((sum, char) => sum + char.weeklyBosses.length, 0);
 
     if (charactersWithMesos.length === 0) {
@@ -86,8 +86,13 @@ export default function MesoChart({
                 {/* Total Bosses Completed */}
                 <div className="bg-orange-100 border-2 border-orange-500 rounded-lg p-4">
                     <h3 className="text-lg font-semibold text-gray-800 mb-1">Total Completed Bosses</h3>
-                    <p className="text-3xl font-bold text-orange-600">
-                        {totalBosses}
+                    <p className="text-3xl font-bold text-orange-600 ${totalBosses > 180 ? 'text-red-600' : 'text-orange-600'}">
+                        {totalBosses}/180
+                        {totalBosses > 180 && (
+                            <p className="text-red-600 text-sm mt-1">
+                                Weekly boss limit exceeded!
+                            </p>
+                        )}
                     </p>
                 </div>
 
