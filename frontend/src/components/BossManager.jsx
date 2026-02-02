@@ -268,9 +268,9 @@ export default function BossManager({
 						<button
 							key={slot.slotNumber}
 							onClick={() => handleSlotClick(slot.slotNumber, slot.boss)}
-							className={`p-2 rounded-lg border-2 transition-all min-h-32 flex flex-col ${slot.boss
-								? 'border-black bg-[{getBossImagePath(bossName)}] hover:bg-orange-150'
-								: 'border-black border-dashed hover:border-black hover:bg-orange-200 bg-orange-100'
+							className={`p-2 bg-stone-50 hover:bg-orange-100 rounded-lg border-2 transition-all min-h-32 flex flex-col ${slot.boss
+								? 'border-black '
+								: 'border-black border-dashed '
 								}`}
 						>
 							{slot.boss ? (
