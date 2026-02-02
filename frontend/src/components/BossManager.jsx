@@ -374,7 +374,7 @@ export default function BossManager({
 
 							{/* Boss Selection Grid */}
 							<div className="flex gap-6 mb-6">
-								<div className="flex-1 overflow-y-auto max-h-96">
+								<div className="flex-1 overflow-y-auto max-h-[85vh]">
 									<h3 className="text-lg font-semibold mb-3">Select Boss</h3>
 									<div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
 										{filteredBosses.map((bossName) => {
@@ -424,7 +424,7 @@ export default function BossManager({
 										</button>
 									</div>
 								)}
-								<div className="w-80 bg-gray-50 p-4 rounded-lg">
+								<div className="w-80 bg-gray-50 p-4 rounded-lg max-h-100">
 									{selectedBoss ? (
 										<>
 											<h4 className="font-semibold mb-3">Selected: {selectedBoss}</h4>
