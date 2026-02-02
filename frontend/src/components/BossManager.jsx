@@ -316,7 +316,7 @@ export default function BossManager({
 			{/* Boss Selection Modal */}
 			{showBossModal && (
 				<div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
-					<div className="bg-orange-300 rounded-lg shadow-xl max-w-4xl w-full max-h-[100vh] overflow-y-auto">
+					<div className="bg-orange-300 rounded-lg shadow-xl max-w-4xl w-full max-h-[160vh] overflow-y-auto">
 						<div className="p-6">
 							<div className="flex justify-between items-center mb-6">
 								<h2 className="text-2xl font-bold text-gray-800">
