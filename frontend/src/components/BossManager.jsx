@@ -317,7 +317,7 @@ export default function BossManager({
 			{showBossModal && (
 				<div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
 					<div className="bg-orange-300 rounded-lg shadow-xl max-w-4xl w-full h-[85vh] overflow-y-auto">
-						<div className="p-6">
+						<div className="p-6 h-[calc(85vh-80px)]">
 							<div className="flex justify-between items-center mb-6">
 								<h2 className="text-2xl font-bold text-gray-800">
 									{isEditing ? 'Edit Boss' : `Add Boss to Slot ${currentSlot}`}
@@ -373,8 +373,8 @@ export default function BossManager({
 
 
 							{/* Boss Selection Grid */}
-							<div className="flex gap-6 mb-6">
-								<div className="flex-1 overflow-y-auto max-h-[85vh]">
+							<div className="flex gap-6 mb-6 h-full">
+								<div className="flex-1 overflow-y-auto">
 									<h3 className="text-lg font-semibold mb-3">Select Boss</h3>
 									<div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
 										{filteredBosses.map((bossName) => {
@@ -424,7 +424,7 @@ export default function BossManager({
 										</button>
 									</div>
 								)}
-								<div className="w-80 bg-gray-50 p-4 rounded-lg max-h-100">
+								<div className="w-80 bg-gray-50 p-4 rounded-lg flex-shrink-0">
 									{selectedBoss ? (
 										<>
 											<h4 className="font-semibold mb-3">Selected: {selectedBoss}</h4>
