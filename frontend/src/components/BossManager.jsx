@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { availableBosses } from './availableBosses';
 import { getDifficultyBanner } from './difficultyBanners';
-import { addBossToCharacter, updateBossToCharacter, deleteBossToCharacter } from '../api/trackerService';
+import { addBossToCharacter, addMultipleBossesToCharacter, updateBossToCharacter, deleteBossToCharacter } from '../api/trackerService';
 import toast from 'react-hot-toast';
 
 export default function BossManager({
@@ -23,6 +23,8 @@ export default function BossManager({
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const [isMultiAddMode, setIsMultiAddMode] = useState(false);
+	const [pendingBosses, setPendingBosses] = useState([]);
 
 	// Initialize 14 slots when component mounts or weeklyBosses changes
 	useEffect(() => {
@@ -43,7 +45,6 @@ export default function BossManager({
 		const filename = bossName.toLowerCase().replace(/\s+/g, '_');
 		return bossImages[`/src/assets/boss_profiles/${filename}.png`];
 	};
-
 
 	const changeToBackendName = (bossName, difficulty) => {
 		const boss_name = bossName.toUpperCase().replace(/\s+/g, '_');
@@ -82,6 +83,11 @@ export default function BossManager({
 		.filter(slot => slot.boss !== null)
 		.map(slot => getBossName(slot.boss.bossName));
 
+	const pendingBossNames = pendingBosses.map(b => b.displayName);
+
+	const emptySlots = bossSlots.filter(slot => slot.boss === null).length;
+	const canAddMore = pendingBosses.length < emptySlots;
+
 	// Open modal to add/edit boss
 	const handleSlotClick = (slotNumber, existingBoss = null) => {
 		setCurrentSlot(slotNumber);
@@ -107,6 +113,16 @@ export default function BossManager({
 		setShowBossModal(true);
 	};
 
+	const handleOpenMultiAdd = () => {
+		setIsMultiAddMode(true);
+		setSelectedBoss(null);
+		setSelectedDifficulty('');
+		setSelectedPartySize('');
+		setPendingBosses([]);
+		setSearchQuery('');
+		setShowBossModal(true);
+	};
+
 	// Handle boss selection
 	const handleSelectBoss = (bossName) => {
 		setSelectedBoss(bossName);
@@ -114,6 +130,63 @@ export default function BossManager({
 		setSelectedPartySize('');
 	};
 
+	const handleAddToQueue = () => {
+		if (!selectedBoss || !selectedDifficulty || !selectedPartySize) {
+			toast.error('Please select boss, difficulty, and party size');
+			return;
+		}
+		if (!canAddMore) {
+			toast.error('No more empty slots available');
+			return;
+		}
+		const convertedName = changeToBackendName(selectedBoss, selectedDifficulty);
+		setPendingBosses(prev => [...prev, {
+			displayName: selectedBoss,
+			difficulty: selectedDifficulty,
+			partySize: selectedPartySize,
+			convertedName
+		}]);
+		setSelectedBoss(null);
+		setSelectedDifficulty('');
+		setSelectedPartySize('');
+	};
+
+	const handleRemoveFromQueue = (index) => {
+		setPendingBosses(prev => prev.filter((_, i) => i !== index));
+	};
+
+	const handleSaveMultiple = async () => {
+		if (pendingBosses.length === 0) {
+			toast.error('No bosses in queue');
+			return;
+		}
+		if (isSubmitting) return;
+		setIsSubmitting(true);
+
+		const loadingToast = toast.loading(`Adding ${pendingBosses.length} boss${pendingBosses.length !== 1 ? 'es' : ''}...`);
+
+		try {
+			await addMultipleBossesToCharacter(
+				userId,
+				characterId,
+				pendingBosses.map(b => ({ bossName: b.convertedName, partySize: b.partySize }))
+			);
+
+			if (onCharacterRefetch) {
+				await onCharacterRefetch();
+			}
+
+			closeModal();
+			toast.success(`${pendingBosses.length} boss${pendingBosses.length !== 1 ? 'es' : ''} added successfully!`, {
+				id: loadingToast,
+			});
+		} catch (err) {
+			console.error('Error saving bosses:', err);
+			toast.error('Failed to add bosses', { id: loadingToast });
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
 
 	// Save boss to slot
 	const handleSaveBoss = async () => {
@@ -239,6 +312,8 @@ export default function BossManager({
 		setIsEditing(false);
 		setEditingBoss(null);
 		setSearchQuery('');
+		setIsMultiAddMode(false);
+		setPendingBosses([]);
 	};
 
 	const availablePartySizes = selectedBoss && selectedDifficulty
@@ -256,7 +331,17 @@ export default function BossManager({
 			{/* Header with Progress */}
 			<div className="bg-orange-300 p-6 rounded-lg mb-4">
 				<div className="flex justify-between items-center mb-4">
-					<h3 className="text-xl font-bold text-gray-800">Weekly Bosses</h3>
+					<div className="flex items-center gap-3">
+						<h3 className="text-xl font-bold text-gray-800">Weekly Bosses</h3>
+						{emptySlots > 0 && (
+							<button
+								onClick={handleOpenMultiAdd}
+								className="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-lg transition-colors"
+							>
+								+ Add Multiple
+							</button>
+						)}
+					</div>
 					<span className="text-lg font-semibold text-black">
 						{filledSlots} / 14 Cleared
 					</span>
@@ -275,7 +360,6 @@ export default function BossManager({
 						>
 							{slot.boss ? (
 								// Filled Slot
-
 								<div className="flex flex-col h-full">
 									<div className="relative w-full h-20 rounded overflow-hidden mb-2">
 										<img
@@ -285,8 +369,6 @@ export default function BossManager({
 											onError={(e) => {
 												// Fallback if image doesn't exist
 												e.target.src = '/images/bosses/default.png';
-												// Or hide image and show text
-												// e.target.style.display = 'none';
 											}}
 										/>
 										{/* Difficulty Banner - Bottom Right Corner */}
@@ -320,7 +402,7 @@ export default function BossManager({
 						<div className="p-6 h-[calc(85vh-80px)]">
 							<div className="flex justify-between items-center mb-6">
 								<h2 className="text-2xl font-bold text-gray-800">
-									{isEditing ? 'Edit Boss' : `Add Boss to Slot ${currentSlot}`}
+									{isMultiAddMode ? 'Add Multiple Bosses' : isEditing ? 'Edit Boss' : `Add Boss to Slot ${currentSlot}`}
 								</h2>
 								<button
 									onClick={closeModal}
@@ -374,11 +456,11 @@ export default function BossManager({
 
 							{/* Boss Selection Grid */}
 							<div className="flex gap-6 mb-6 h-full">
-								<div className="flex-1 overflow-y-auto">
+								<div className="flex-1 overflow-y-auto pr-3">
 									<h3 className="text-lg font-semibold mb-3">Select Boss</h3>
 									<div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
 										{filteredBosses.map((bossName) => {
-											const isAlreadyAdded = addedBossNames.includes(bossName) &&
+											const isAlreadyAdded = (addedBossNames.includes(bossName) || pendingBossNames.includes(bossName)) &&
 												(!isEditing || bossName !== selectedBoss);
 											return (
 												<button
@@ -400,14 +482,11 @@ export default function BossManager({
 															onError={(e) => {
 																// Fallback if image doesn't exist
 																e.target.src = '/images/bosses/default.png';
-																// Or hide image and show text
-																// e.target.style.display = 'none';
 															}}
 														/>
 													</div>
 													<p className="font-semibold text-center text-sm">{bossName}</p>
 												</button>
-
 											);
 										})}
 									</div>
@@ -424,7 +503,7 @@ export default function BossManager({
 										</button>
 									</div>
 								)}
-								<div className="w-80 bg-gray-50 p-4 rounded-lg flex-shrink-0">
+								<div className="w-80 bg-gray-50 p-4 rounded-lg flex-shrink-0 self-start">
 									{selectedBoss ? (
 										<>
 											<h4 className="font-semibold mb-3">Selected: {selectedBoss}</h4>
@@ -468,43 +547,55 @@ export default function BossManager({
 													</div>
 												</div>
 											)}
-											<div className="flex gap-3">
-												<button
-													onClick={handleSaveBoss}
-													disabled={!selectedBoss || !selectedDifficulty || !selectedPartySize || isSubmitting}
-													className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
-												>
-													{isSubmitting ? (
-														<span className="flex items-center justify-center gap-2">
-															<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-																<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-																<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-															</svg>
-															{isEditing ? 'Saving...' : 'Adding...'}
-														</span>
-													) : (
-														isEditing ? 'Save Changes' : 'Add Boss'
-													)}
-												</button>
-												{isEditing && (
-													<button
-														onClick={handleDeleteBoss}
-														disabled={isDeleting}
-														className="flex-1 bg-red-400 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
-													>
-														{isDeleting ? (
-															<span className="flex items-center justify-center gap-2">
-																<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-																	<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-																	<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-																</svg>
-																Deleting boss...
-															</span>
-														) : (
-															'Delete Boss'
-														)}
-													</button>
 
+											<div className="flex gap-3">
+												{isMultiAddMode ? (
+													<button
+														onClick={handleAddToQueue}
+														disabled={!selectedBoss || !selectedDifficulty || !selectedPartySize || !canAddMore}
+														className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
+													>
+														Add to Queue
+													</button>
+												) : (
+													<>
+														<button
+															onClick={handleSaveBoss}
+															disabled={!selectedBoss || !selectedDifficulty || !selectedPartySize || isSubmitting}
+															className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
+														>
+															{isSubmitting ? (
+																<span className="flex items-center justify-center gap-2">
+																	<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+																		<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+																		<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+																	</svg>
+																	{isEditing ? 'Saving...' : 'Adding...'}
+																</span>
+															) : (
+																isEditing ? 'Save Changes' : 'Add Boss'
+															)}
+														</button>
+														{isEditing && (
+															<button
+																onClick={handleDeleteBoss}
+																disabled={isDeleting}
+																className="flex-1 bg-red-400 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
+															>
+																{isDeleting ? (
+																	<span className="flex items-center justify-center gap-2">
+																		<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+																			<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+																			<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+																		</svg>
+																		Deleting boss...
+																	</span>
+																) : (
+																	'Delete Boss'
+																)}
+															</button>
+														)}
+													</>
 												)}
 												<button
 													onClick={closeModal}
@@ -516,6 +607,49 @@ export default function BossManager({
 										</>
 									) : (
 										<p className="text-black text-center">Select a boss to begin</p>
+									)}
+
+									{/* Queue Section - only in multi-add mode */}
+									{isMultiAddMode && pendingBosses.length > 0 && (
+										<div className="mt-4 border-t border-gray-200 pt-4">
+											<div className="flex justify-between items-center mb-2">
+												<h4 className="font-semibold text-sm">Queue ({pendingBosses.length})</h4>
+												<span className="text-xs text-gray-500">{emptySlots - pendingBosses.length} slot{emptySlots - pendingBosses.length !== 1 ? 's' : ''} remaining</span>
+											</div>
+											<div className="space-y-2 max-h-40 overflow-y-auto mb-3">
+												{pendingBosses.map((boss, index) => (
+													<div key={index} className="flex items-center justify-between bg-orange-100 px-3 py-2 rounded-lg">
+														<div>
+															<p className="text-sm font-semibold">{boss.displayName}</p>
+															<p className="text-xs text-gray-600">{boss.difficulty} · Party {boss.partySize}</p>
+														</div>
+														<button
+															onClick={() => handleRemoveFromQueue(index)}
+															className="text-red-400 hover:text-red-600 font-bold text-lg ml-2"
+														>
+															×
+														</button>
+													</div>
+												))}
+											</div>
+											<button
+												onClick={handleSaveMultiple}
+												disabled={isSubmitting}
+												className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
+											>
+												{isSubmitting ? (
+													<span className="flex items-center justify-center gap-2">
+														<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+															<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+															<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+														</svg>
+														Adding...
+													</span>
+												) : (
+													`Save All (${pendingBosses.length})`
+												)}
+											</button>
+										</div>
 									)}
 								</div>
 							</div>

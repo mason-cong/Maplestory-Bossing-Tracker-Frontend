@@ -30,6 +30,7 @@ export default function CharacterManager({
 
     const [showDuplicateModal, setShowDuplicateModal] = useState(false);
     const [sourceCharacter, setSourceCharacter] = useState(null);
+    const [duplicateDirection, setDuplicateDirection] = useState('from');
 
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -214,39 +215,41 @@ export default function CharacterManager({
 
     const handleDuplicateBosses = () => {
         setSourceCharacter(displayedCharacter);
+        setDuplicateDirection('from');
         setShowDuplicateModal(true);
     };
 
-    const handleCopyBosses = async (targetCharacter) => {
-        const loadingToast = toast.loading(`Copying bosses to ${targetCharacter.characterName}...`);
+    const handleCopyBosses = async (selectedCharacter) => {
+        const fromChar = duplicateDirection === 'from' ? sourceCharacter : selectedCharacter;
+        const toChar = duplicateDirection === 'from' ? selectedCharacter : sourceCharacter;
+
+        const loadingToast = toast.loading(`Copying bosses to ${toChar.characterName}...`);
 
         if (isDuplicating) {
-			return;
-		}
-		setIsDuplicating(true);
+            return;
+        }
+        setIsDuplicating(true);
         try {
-            // Get source character's bosses
-            const bossesToCopy = sourceCharacter.weeklyBosses;
+            const bossesToCopy = fromChar.weeklyBosses;
 
             if (!bossesToCopy || bossesToCopy.length === 0) {
                 toast.error('No bosses to copy', { id: loadingToast });
                 return;
             }
 
-            const response = await copyBossesToCharacter(userId, targetCharacter.id,
+            const response = await copyBossesToCharacter(userId, toChar.id,
                 {
-                    weeklyCharacterId: sourceCharacter.id,
+                    weeklyCharacterId: fromChar.id,
                     replace: true
                 });
 
-            // Refetch the target character to get latest bosses
             if (onCharacterRefetch) {
                 await onCharacterRefetch();
             }
 
             setUserCharacters(prev =>
                 prev.map(char =>
-                    char.id === targetCharacter.id
+                    char.id === toChar.id
                         ? { ...char, ...response }
                         : char
                 )
@@ -254,7 +257,7 @@ export default function CharacterManager({
 
             setDisplayedCharacter(response);
 
-            toast.success(`${bossesToCopy.length} bosses copied to ${targetCharacter.characterName}!`, {
+            toast.success(`${bossesToCopy.length} bosses copied to ${toChar.characterName}!`, {
                 id: loadingToast
             });
 
@@ -265,8 +268,8 @@ export default function CharacterManager({
             console.error('Error copying bosses:', err);
             toast.error('Failed to copy bosses', { id: loadingToast });
         } finally {
-			setIsDuplicating(false);
-		}
+            setIsDuplicating(false);
+        }
     };
 
     return (
@@ -519,7 +522,7 @@ export default function CharacterManager({
                                 )}
                                 <div className="flex mb-2 gap-3 justify-end">
                                     {/*Character editing buttons*/}
-                                    {displayedCharacter && displayedCharacter.weeklyBosses?.length > 0 && (
+                                    {displayedCharacter && userCharacters.length > 1 && (
                                         <button
                                             onClick={() => {
                                                 handleDuplicateBosses();
@@ -569,17 +572,42 @@ export default function CharacterManager({
                         <h2 className="text-2xl font-bold text-gray-800 mb-4">
                             Duplicate Boss List
                         </h2>
-                        <div className="mb-6">
-                            <p className="text-gray-600 mb-2">
-                                Copy bosses from <strong>{sourceCharacter?.characterName}</strong> to:
-                            </p>
-                            <p className="text-sm text-gray-500">
-                                ({sourceCharacter?.weeklyBosses?.length || 0} bosses will be copied)
-                            </p>
+
+                        {/* Direction Toggle */}
+                        <div className="flex gap-2 mb-4">
+                            <button
+                                onClick={() => setDuplicateDirection('from')}
+                                className={`px-4 py-2 rounded-lg font-semibold transition-colors ${duplicateDirection === 'from' ? 'bg-orange-500 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                            >
+                                Duplicate From
+                            </button>
+                            <button
+                                onClick={() => setDuplicateDirection('to')}
+                                className={`px-4 py-2 rounded-lg font-semibold transition-colors ${duplicateDirection === 'to' ? 'bg-orange-500 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                            >
+                                Duplicate To
+                            </button>
                         </div>
 
-                        {/* Target Character Selection */}
-                        <div className="space-y-2 max-h-96 overflow-y-auto mb-6">
+                        <div className="mb-6">
+                            {duplicateDirection === 'from' ? (
+                                <>
+                                    <p className="text-gray-600 mb-2">
+                                        Copy bosses from <strong>{sourceCharacter?.characterName}</strong> to:
+                                    </p>
+                                    <p className="text-sm text-orange-500">
+                                        ({sourceCharacter?.weeklyBosses?.length || 0} bosses will be copied)
+                                    </p>
+                                </>
+                            ) : (
+                                <p className="text-gray-600">
+                                    Copy bosses to <strong>{sourceCharacter?.characterName}</strong> from:
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Character Selection */}
+                        <div className="space-y-2 max-h-96 overflow-y-auto pr-3 mb-6">
                             {userCharacters
                                 .filter(char => char.id !== sourceCharacter?.id)
                                 .map((character) => (
@@ -595,11 +623,11 @@ export default function CharacterManager({
                                                 <p className="text-sm text-gray-600">
                                                     Level {character.characterLevel} • {character.characterClass}
                                                 </p>
-                                                <p className="text-xs text-gray-500">
+                                                <p className="text-xs text-orange-500">
                                                     Current bosses: {character.weeklyBosses?.length || 0}
                                                 </p>
                                             </div>
-                                            <span className="text-2xl">→</span>
+                                            <span className="text-2xl">{duplicateDirection === 'from' ? '→' : '←'}</span>
                                         </div>
                                     </button>
                                 ))}

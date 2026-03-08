@@ -88,6 +88,19 @@ export const copyBossesToCharacter = async (userID, charID, charData) => {
     }
 };
 
+export const addMultipleBossesToCharacter = async (userID, charID, bossesData) => {
+    try {
+        const results = [];
+        for (const bossData of bossesData) {
+            const result = await addBossToCharacter(userID, charID, bossData);
+            results.push(result);
+        }
+        return results;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const addBossToCharacter = async (userID, charID, bossData) => {
     try {
         const response = await axios.post(`${API_URL}/${userID}/${charID}/bosses`, bossData, {
