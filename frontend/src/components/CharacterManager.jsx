@@ -520,7 +520,7 @@ export default function CharacterManager({
                                         )}
                                     </div>
                                 )}
-                                <div className="flex mb-2 gap-3 justify-end">
+                                <div className="flex flex-wrap mb-2 gap-2 justify-end">
                                     {/*Character editing buttons*/}
                                     {displayedCharacter && userCharacters.length > 1 && (
                                         <button
@@ -528,10 +528,10 @@ export default function CharacterManager({
                                                 handleDuplicateBosses();
                                                 setIsDropdownOpen(false);
                                             }}
-                                            className="text-left px-3 py-1 text-black rounded bg-white hover:bg-orange-50 transition-colors flex items-center gap-2"
+                                            className="text-left px-3 py-1 text-black rounded bg-white hover:bg-orange-50 transition-colors flex items-center gap-1"
                                         >
                                             <span className="text-xl">📋</span>
-                                            Duplicate Bosses
+                                            <span className="hidden sm:inline">Duplicate Bosses</span>
                                         </button>
                                     )}
                                     <button

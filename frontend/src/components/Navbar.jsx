@@ -11,36 +11,34 @@ const Navbar = () => {
         navigate("/login");
     };
     return (
-       <nav className="bg-orange-400 text-white p-1 shadow-md ">
-            <div className="flex items-center gap-2 w-full justify-center">
-                
-                <img src={crystal} className='w-15'/>
-                <div>
-                    <Link to="/" className="text-lg font-bold">
-                        Weekly Bossing Meso Tracker
+       <nav className="bg-orange-400 text-white p-1 shadow-md">
+            <div className="flex items-center gap-2 w-full">
+                <img src={crystal} className='w-10 md:w-15 flex-shrink-0'/>
+                <div className="min-w-0">
+                    <Link to="/" className="text-sm md:text-lg font-bold truncate block">
+                        <span className="hidden sm:inline">Weekly Bossing Meso Tracker</span>
+                        <span className="sm:hidden">Boss Tracker</span>
                     </Link>
-                    
                 </div>
 
-                <div className="flex gap-6 text-lg font-semibold ms-5">
-                    <Link to={user ? "/tracker" : "/login"} className="hover:underline">
+                <div className="flex gap-4 text-sm md:text-lg font-semibold ml-2 md:ml-5">
+                    <Link to={user ? "/tracker" : "/login"} className="hover:underline whitespace-nowrap">
                         Tracker
                     </Link>
                 </div>
 
-               
-                <div className="flex justify-end ml-auto mr-[1rem]">
+                <div className="flex justify-end ml-auto mr-2 md:mr-4">
                     {user ? (
-                        <button 
-                            onClick={handleLogout} 
-                            className="bg-white text-red-500 px-4 py-2 rounded-md hover:bg-gray-200"
+                        <button
+                            onClick={handleLogout}
+                            className="bg-white text-red-500 px-2 md:px-4 py-1 md:py-2 text-sm md:text-base rounded-md hover:bg-gray-200 whitespace-nowrap"
                         >
                             Logout
                         </button>
                     ) : (
-                        <Link 
-                            to="/login" 
-                            className="bg-white text-red-500 px-4 py-2 rounded-md hover:bg-gray-200"
+                        <Link
+                            to="/login"
+                            className="bg-white text-red-500 px-2 md:px-4 py-1 md:py-2 text-sm md:text-base rounded-md hover:bg-gray-200 whitespace-nowrap"
                         >
                             Login
                         </Link>

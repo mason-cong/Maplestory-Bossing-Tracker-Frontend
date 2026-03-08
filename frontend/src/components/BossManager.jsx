@@ -397,9 +397,9 @@ export default function BossManager({
 
 			{/* Boss Selection Modal */}
 			{showBossModal && (
-				<div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
-					<div className="bg-orange-300 rounded-lg shadow-xl max-w-4xl w-full h-[85vh] overflow-y-auto">
-						<div className="p-6 h-[calc(85vh-80px)]">
+				<div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-2 md:p-4">
+					<div className="bg-orange-300 rounded-lg shadow-xl max-w-4xl w-full h-[95vh] md:h-[85vh] overflow-y-auto">
+						<div className="p-4 md:p-6">
 							<div className="flex justify-between items-center mb-6">
 								<h2 className="text-2xl font-bold text-gray-800">
 									{isMultiAddMode ? 'Add Multiple Bosses' : isEditing ? 'Edit Boss' : `Add Boss to Slot ${currentSlot}`}
@@ -455,10 +455,10 @@ export default function BossManager({
 
 
 							{/* Boss Selection Grid */}
-							<div className="flex gap-6 mb-6 h-full">
+							<div className="flex flex-col lg:flex-row gap-6 mb-6">
 								<div className="flex-1 overflow-y-auto pr-3">
 									<h3 className="text-lg font-semibold mb-3">Select Boss</h3>
-									<div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
+									<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
 										{filteredBosses.map((bossName) => {
 											const isAlreadyAdded = (addedBossNames.includes(bossName) || pendingBossNames.includes(bossName)) &&
 												(!isEditing || bossName !== selectedBoss);
@@ -503,7 +503,7 @@ export default function BossManager({
 										</button>
 									</div>
 								)}
-								<div className="w-80 bg-gray-50 p-4 rounded-lg flex-shrink-0 self-start">
+								<div className="w-full lg:w-80 bg-gray-50 p-4 rounded-lg flex-shrink-0 lg:self-start">
 									{selectedBoss ? (
 										<>
 											<h4 className="font-semibold mb-3">Selected: {selectedBoss}</h4>
