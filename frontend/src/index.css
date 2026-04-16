@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
 @layer base {
   .tracker-class {
     @apply bg-linear-to-b from-orange-200/80 via-orange-200/60 to-sky-200/80; 

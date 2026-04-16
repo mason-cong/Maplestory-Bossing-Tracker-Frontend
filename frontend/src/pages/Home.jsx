@@ -1,4 +1,5 @@
 import mesochair from '../assets/home-img.png';
+import mesobg from '../assets/maple_island_bg.jpg';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from "../AuthContext";
 import { useContext } from 'react';
@@ -8,9 +9,10 @@ const Home = () => {
     const { user } = useContext(AuthContext);
 
     return (
-        <div className="flex flex-col md:flex-row items-center text-center">
+        <div className="flex flex-col md:flex-row items-center text-center bg-cover bg-center h-screen overflow-hidden"
+        style={{ backgroundImage: `url(${mesobg})` }}>
             <div className="inline-block mt-[3rem] p-5 mx-auto">
-                <p className="text-3xl md:text-5xl relative p-5 rounded-lg mb-[2rem]">
+                <p className="text-3xl md:text-5xl relative p-5 rounded-lg mb-[2rem] text-white">
                     A tool to keep count of your weekly mesos.
                 </p>
                 {user ?
@@ -34,10 +36,6 @@ const Home = () => {
                         </button>
                     )}
             </div>
-            <div className="flex justify-center w-full md:w-auto">
-                <img className="w-full max-w-sm md:max-w-none md:w-[50rem] object-contain" src={mesochair} />
-            </div>
-
         </div>
     );
 
